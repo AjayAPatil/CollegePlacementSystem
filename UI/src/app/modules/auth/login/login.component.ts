@@ -22,8 +22,8 @@ export class LoginComponent implements OnInit {
     private cdref: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', Validators.required]
+      email: ['admin@admin.com', [Validators.required, Validators.email]],
+      password: ['A@123.aaa', Validators.required]
     });
   }
 
@@ -41,10 +41,10 @@ export class LoginComponent implements OnInit {
     
       response.isLoggedIn = true;
       response.userId = 1;
-      response.userName = 'Student1';
-      response.email = 'student1@example.com';
-      response.passwordHash = '******';
-      response.role = UserRoleConstants.Student;
+      response.userName = this.loginForm.value.email;
+      response.email = this.loginForm.value.email;
+      response.passwordHash = this.loginForm.value.password;
+      response.role = UserRoleConstants.Admin;
       response.status = 'Active';
       //response.firstName = 'Student';
       //response.lastName = 'One';
@@ -55,6 +55,7 @@ export class LoginComponent implements OnInit {
       response.pinCode = 400001;
 
     this.globalService.setUserInfo(response);
+    this.globalService.showMessage.emit({text: 'logged in', type:'success'})
     this.cdref.detectChanges();
     //       localStorage.setItem('token', response.token);
     //       localStorage.setItem('role', response.role);

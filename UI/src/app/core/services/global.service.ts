@@ -7,6 +7,7 @@ import { UserModel, UserRoleConstants } from '../../shared';
 export class GlobalService {
   public userInfo: UserModel = new UserModel();
   public userInfoUpdated: EventEmitter<boolean> = new EventEmitter<boolean>();
+  public showMessage: EventEmitter<{ text: string; type: string }> = new EventEmitter<{ text: string; type: string }>();
 
   constructor() {
     this.userInfo = JSON.parse(sessionStorage.getItem('userInfo') || '{}');

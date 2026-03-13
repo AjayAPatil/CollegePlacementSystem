@@ -166,7 +166,7 @@ SELECT CAST(SCOPE_IDENTITY() as bigint);
                     user.Student.ResumeFilePath = resumePath;
 
                     string studentSql = @"
-Insert into Student (UserId, FirstName, MiddleName, LastName, DateOfBirth, Nationality, Gender, BloodGroup, EnrollmentNo, Department, PassingYear, CGPA, ResumeFilePath, Skills, CreatedAt)
+Insert into Students (UserId, FirstName, MiddleName, LastName, DateOfBirth, Nationality, Gender, BloodGroup, EnrollmentNo, Department, PassingYear, CGPA, ResumeFilePath, Skills, CreatedAt)
 values (@UserId, @FirstName, @MiddleName, @LastName, @DateOfBirth, @Nationality, @Gender, @BloodGroup, @EnrollmentNo, @Department, @PassingYear, @CGPA, @ResumeFilePath, @Skills, @CreatedAt)
 ";
                     _ = await _sqlQueryHelper.ExecuteAsync(studentSql, user.Student);
@@ -179,7 +179,7 @@ values (@UserId, @FirstName, @MiddleName, @LastName, @DateOfBirth, @Nationality,
                 {
                     user.Company.UserId = user.UserId;
                     string companySql = @"
-Insert into Company (UserId, CompanyName, Industry, CompanySize, Website, Description, CreatedAt)
+Insert into Companies (UserId, CompanyName, Industry, CompanySize, Website, Description, CreatedAt)
 values (@varUserId, @CompanyName, @Industry, @CompanySize, @Website, @Description, @CreatedAt)
 ";
                     _ = await _sqlQueryHelper.ExecuteAsync(companySql, user.Company);

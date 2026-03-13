@@ -4,3 +4,4 @@ export * from './models/company.model';
 export * from './constants/user-role.constants';
 export * from './constants/common.constants';
 export * from './constants/user-status.constants';
+export * from './material.module';

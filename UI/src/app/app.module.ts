@@ -10,31 +10,29 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
-import { HeaderComponent, SidenavComponent } from './layout';
-import { AdminModule, AuthModule, CompanyModule, StudentModule } from './modules';
+import { HeaderComponent } from './layout';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { AdminModule } from './modules/admin/admin.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { CompanyModule } from './modules/company/company.module';
+import { StudentModule } from './modules/student/student.module';
+import { MaterialModule } from './shared';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SidenavComponent,
     HeaderComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatSidenavModule,
-    MatIconModule,
-    MatListModule,
-    MatExpansionModule,
+    MaterialModule,
     StudentModule,
     AdminModule,
     CompanyModule,
     AuthModule,
-    MatMenuModule
   ],
   providers: [provideBrowserGlobalErrorListeners()],
   bootstrap: [AppComponent],
 })
-export class AppModule {}
+export class AppModule { }

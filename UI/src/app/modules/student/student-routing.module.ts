@@ -5,12 +5,17 @@ import { StudentDashboardComponent } from './student-dashboard/student-dashboard
 import { StudentProfileComponent } from './student-profile/student-profile.component';
 
 const routes: Routes = [
-  { path: '', component: StudentComponent },
-  { path: 'dashboard', component: StudentDashboardComponent },
   {
-    path: 'profile',
-    component: StudentProfileComponent,
-  }
+    path: '', component: StudentComponent,
+    children: [
+
+      { path: 'dashboard', component: StudentDashboardComponent },
+      {
+        path: 'profile',
+        component: StudentProfileComponent,
+      }
+    ]
+  },
 ];
 
 @NgModule({

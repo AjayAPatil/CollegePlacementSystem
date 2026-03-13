@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { CommonConstants, StudentModel, UserModel, UserRoleConstants, UserStatusConstants } from '../../../../shared';
+import { Router } from '@angular/router';
+import { GlobalService } from '../../../../core';
 
 @Component({
   selector: 'app-student',
@@ -24,7 +26,9 @@ export class StudentComponent implements OnInit {
   bloodGroupOptions = CommonConstants.BloodGroupOptions;
 
   constructor(private fb: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router,
+    private globalService: GlobalService
   ) { }
 
   ngOnInit(): void {
@@ -162,20 +166,20 @@ export class StudentComponent implements OnInit {
       profilePhoto: null
     };
     const student: StudentModel = {
-      bloodGroup: this.personalForm.value.bloodGroup,
-      cgpa: 0,
-      department: this.academicForm.value.department,
-      enrollmentNo: this.academicForm.value.enrollmentNo,
-      passingYear: this.academicForm.value.passingYear,
-      createdAt: new Date(),
+      id: 0,
+      userId: 0,
       firstName: this.personalForm.value.firstName,
       middleName: this.personalForm.value.middleName,
       lastName: this.personalForm.value.lastName,
-      gender: this.personalForm.value.gender,
       dateOfBirth: this.personalForm.value.dob,
-      id: 0,
       nationality: this.contactForm.value.country,
-      userId: 0,
+      gender: this.personalForm.value.gender,
+      bloodGroup: this.personalForm.value.bloodGroup,
+      enrollmentNo: this.academicForm.value.enrollmentNo,
+      department: this.academicForm.value.department,
+      passingYear: this.academicForm.value.passingYear,
+      cgpa: 0,
+      createdAt: new Date(),
       resume: null,
       resumeUrl: '',
       skills: this.skills.value.join(','),
@@ -191,11 +195,15 @@ export class StudentComponent implements OnInit {
     }
     formData.append('data', JSON.stringify(dataToSubmit));
 
-
-    this.authService.upsertUser(formData).subscribe(response => {
-      console.log('User registered successfully', response);
-    }, error => {
-      console.error('Error registering user', error);
+    this.authService.upsertUser(formData).subscribe({
+      next: (response) => {
+        console.log('User registered successfully', response);
+        this.globalService.showMessage.emit({text: 'User registered successfully', type: 'success'})
+        this.router.navigate(['/login']);
+      },
+      error: (error) => {
+        console.error('Error registering user', error);
+      }
     });
   }
 }
