@@ -1,0 +1,378 @@
+<mat-stepper linear>
+
+    <!-- STEP 1 PERSONAL -->
+
+    <mat-step [stepControl]="personalForm">
+        <form [formGroup]="personalForm">
+            <ng-template matStepLabel>Personal Information</ng-template>
+            <h2>Personal Information</h2>
+            <div class="grid-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>First Name</mat-label>
+                    <input matInput formControlName="firstName">
+
+                    @if (getControl(personalForm,'firstName')?.touched &&
+                    getControl(personalForm,'firstName')?.hasError('required')) {
+                    <mat-error>First name is required</mat-error>
+                    }
+
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Middle Name</mat-label>
+                    <input matInput formControlName="middleName">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Last Name</mat-label>
+                    <input matInput formControlName="lastName">
+
+                    @if (getControl(personalForm,'lastName')?.touched &&
+                    getControl(personalForm,'lastName')?.hasError('required')) {
+                    <mat-error>Last name required</mat-error>
+                    }
+
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Date of Birth</mat-label>
+                    <input matInput type="date" formControlName="dob">
+                </mat-form-field>
+
+                <div class="gender-section">
+
+                    <label>Gender</label>
+                    <br>
+                    <mat-radio-group formControlName="gender">
+                        @for(gender of genderOptions; track gender) {
+                        <mat-radio-button [value]="gender">{{ gender }}</mat-radio-button>
+                        }
+                    </mat-radio-group>
+
+                    @if (getControl(personalForm,'gender')?.touched &&
+                    getControl(personalForm,'gender')?.hasError('required')) {
+                    <div class="error">Gender required</div>
+                    }
+
+                </div>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Blood Group</mat-label>
+
+                    <mat-select formControlName="bloodGroup">
+                        @for(bloodGroup of bloodGroupOptions; track bloodGroup) {
+                        <mat-option [value]="bloodGroup">{{ bloodGroup }}</mat-option>
+                        }
+                    </mat-select>
+
+                </mat-form-field>
+            </div>
+            <div>
+                <button mat-button matStepperNext [disabled]="personalForm.invalid">Next</button>
+            </div>
+
+        </form>
+    </mat-step>
+
+    <!-- STEP 2 ACADEMIC -->
+
+    <mat-step [stepControl]="academicForm">
+        <form [formGroup]="academicForm">
+
+            <ng-template matStepLabel>Academic Information</ng-template>
+            <h2>Academic Information</h2>
+            <div class="grid-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Enrollment No</mat-label>
+                    <input matInput formControlName="enrollmentNo">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Department</mat-label>
+
+                    <mat-select formControlName="department">
+
+                        <mat-option value="CSE">Computer Science</mat-option>
+                        <mat-option value="ECE">Electronics</mat-option>
+                        <mat-option value="ME">Mechanical</mat-option>
+                        <mat-option value="CE">Civil</mat-option>
+
+                    </mat-select>
+
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Passing Year</mat-label>
+                    <input matInput formControlName="passingYear">
+                </mat-form-field>
+            </div>
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext [disabled]="academicForm.invalid">Next</button>
+            </div>
+
+        </form>
+    </mat-step>
+
+    <!-- STEP 3 CONTACT -->
+
+    <mat-step [stepControl]="contactForm">
+
+        <form [formGroup]="contactForm">
+
+            <ng-template matStepLabel>Contact Information</ng-template>
+            <h2>Contact Information</h2>
+            <div class="grid-4">
+                <mat-form-field appearance="outline">
+                    <mat-label>Email</mat-label>
+                    <input matInput formControlName="email">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Phone</mat-label>
+                    <input matInput formControlName="phone">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Address</mat-label>
+                    <input matInput formControlName="address">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>City</mat-label>
+                    <input matInput formControlName="city">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>District</mat-label>
+                    <input matInput formControlName="district">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>State</mat-label>
+                    <input matInput formControlName="state">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Postal Code</mat-label>
+                    <input matInput formControlName="postalCode">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                    <mat-label>Country</mat-label>
+                    <input matInput formControlName="country">
+                </mat-form-field>
+            </div>
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext [disabled]="contactForm.invalid">Next</button>
+            </div>
+
+        </form>
+
+    </mat-step>
+
+    <!-- STEP 4 SKILLS -->
+
+    <mat-step [stepControl]="skillsForm">
+
+        <form [formGroup]="skillsForm">
+
+            <ng-template matStepLabel>Skills</ng-template>
+            <h2>Skills</h2>
+
+            <mat-form-field appearance="outline" style="width: 100%;">
+                <mat-label>Skills</mat-label>
+                <mat-chip-grid #chipGrid aria-label="Add skill">
+                    @for (skill of skills.controls; track skill; let i = $index) {
+                    <mat-chip-row (removed)="removeSkill(i)" [editable]="false">
+                        {{skill.value}}
+                        <button matChipRemove [attr.aria-label]="'remove ' + skill.value">
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </mat-chip-row>
+                    }
+                </mat-chip-grid>
+                <input placeholder="New skill..." [matChipInputFor]="chipGrid"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes" [matChipInputAddOnBlur]="true"
+                    (matChipInputTokenEnd)="addSkill($event.value); $event.input.value=''" />
+            </mat-form-field>
+
+
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext [disabled]="skills.length == 0">Next</button>
+            </div>
+
+        </form>
+
+    </mat-step>
+
+    <!-- STEP 5 RESUME -->
+
+    <mat-step [stepControl]="resumeForm">
+
+        <form [formGroup]="resumeForm">
+
+            <ng-template matStepLabel>Resume Upload</ng-template>
+            <h2>Resume Upload</h2>
+            <div class="grid-2">
+                <!-- PHOTO UPLOAD -->
+
+                <div class="upload-box" (click)="photoInput.click()">
+
+                    <mat-icon style="color: rgb(50,146,225)">cloud_upload</mat-icon>
+
+                    @if (!photoFileName) {
+                    <div>Drag & drop passport-sized photo or click to upload</div>
+                    }
+                    @else {
+                    <div class="file-name">
+                        <mat-icon>image</mat-icon>
+                        {{ photoFileName }}
+                    </div>
+                    }
+
+                    <input type="file" #photoInput hidden accept="image/jpg, image/png, image/jpeg"
+                        (change)="uploadPhoto($event)">
+                </div>
+
+
+                <!-- RESUME UPLOAD -->
+
+                <div class="upload-box" (click)="resumeInput.click()">
+
+                    <mat-icon style="color: rgb(50,146,225)">cloud_upload</mat-icon>
+
+                    @if (!resumeFileName) {
+                    <div>Drag & drop resume or click to upload</div>
+                    }
+                    @else {
+                    <div class="file-name">
+                        <mat-icon>description</mat-icon>
+                        {{ resumeFileName }}
+                    </div>
+                    }
+
+                    <input type="file" #resumeInput hidden accept=".pdf,.doc,.docx" (change)="uploadResume($event)">
+                </div>
+
+                @if (resumeForm.get('resume')?.touched && resumeForm.get('resume')?.hasError('required')) {
+                <div class="error">Resume required</div>
+                }
+            </div>
+            <div>
+                <button mat-button matStepperPrevious>Back</button>
+                <button mat-button matStepperNext [disabled]="resumeForm.invalid">
+                    Next
+                </button>
+            </div>
+
+        </form>
+
+    </mat-step>
+
+    <!-- STEP 6 REVIEW -->
+
+    <mat-step>
+
+        <ng-template matStepLabel>Review Your Details</ng-template>
+        <h2>Verify Your Details</h2>
+
+        <div class="review-container">
+
+            <!-- PERSONAL -->
+            <section>
+                <h3>Personal Information</h3>
+
+                <div class="grid-3">
+                    <div><b>First Name:</b> {{ personalForm.value.firstName }}</div>
+                    <div><b>Middle Name:</b> {{ personalForm.value.middleName }}</div>
+                    <div><b>Last Name:</b> {{ personalForm.value.lastName }}</div>
+                    <div><b>Date of Birth:</b> {{ personalForm.value.dob }}</div>
+                    <div><b>Gender:</b> {{ personalForm.value.gender }}</div>
+                    <div><b>Blood Group:</b> {{ personalForm.value.bloodGroup }}</div>
+                </div>
+            </section>
+
+            <!-- ACADEMIC -->
+            <section>
+                <h3>Academic Information</h3>
+
+                <div class="grid-3">
+                    <div><b>Enrollment No:</b> {{ academicForm.value.enrollmentNo }}</div>
+                    <div><b>Department:</b> {{ academicForm.value.department }}</div>
+                    <div><b>Passing Year:</b> {{ academicForm.value.passingYear }}</div>
+                </div>
+            </section>
+
+            <!-- CONTACT -->
+            <section>
+                <h3>Contact Information</h3>
+
+                <div class="grid-4">
+                    <div><b>Email:</b> {{ contactForm.value.email }}</div>
+                    <div><b>Phone:</b> {{ contactForm.value.phone }}</div>
+                    <div><b>Address:</b> {{ contactForm.value.address }}</div>
+                    <div><b>City:</b> {{ contactForm.value.city }}</div>
+                    <div><b>District:</b> {{ contactForm.value.district }}</div>
+                    <div><b>State:</b> {{ contactForm.value.state }}</div>
+                    <div><b>Postal Code:</b> {{ contactForm.value.postalCode }}</div>
+                    <div><b>Country:</b> {{ contactForm.value.country }}</div>
+                </div>
+            </section>
+
+            <!-- SKILLS -->
+            <section>
+                <h3>Skills</h3>
+
+                <div class="review-grid">
+                    <div>
+                        @for (skill of skills.controls; track skill) {
+                        <mat-chip>{{skill.value}}</mat-chip>
+                        }
+                    </div>
+                </div>
+            </section>
+
+            <!-- FILE -->
+            <section>
+                <h3>Uploaded Resume</h3>
+
+                <div class="grid-2">
+                    <div><b>Resume Uploaded:</b>
+                        @if(resumeFileName) {
+                        Yes - {{ resumeFileName }}
+                        }
+                        @else {
+                        No
+                        }
+                    </div>
+
+                    <div><b>Passport Size Photo Uploaded:</b>
+                        @if(photoFileName) {
+                        Yes - {{ photoFileName }}
+                        }
+                        @else {
+                        No
+                        }
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div style="margin-top:20px;">
+            <button mat-button matStepperPrevious>Back</button>
+
+            <button mat-flat-button color="primary" (click)="submit()" [disabled]="personalForm.invalid ||
+                        academicForm.invalid ||
+                        contactForm.invalid ||
+                        skills.length == 0 ||
+                        resumeForm.invalid">
+                Confirm & Submit
+            </button>
+        </div>
+
+    </mat-step>
+
+</mat-stepper>

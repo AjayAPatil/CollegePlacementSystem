@@ -1,0 +1,81 @@
+<div class="dashboard-container">
+
+    <!-- Top Stats -->
+    <div class="stats-grid">
+
+        <mat-card class="stat-card">
+            <h3>Profile Completion</h3>
+            <h2>80%</h2>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <h3>Applied Jobs</h3>
+            <h2>12</h2>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <h3>Upcoming Drives</h3>
+            <h2>3</h2>
+        </mat-card>
+
+        <mat-card class="stat-card">
+            <h3>Shortlisted</h3>
+            <h2>2</h2>
+        </mat-card>
+
+    </div>
+<div class="charts-grid">
+
+  <mat-card>
+    <h3>Skill Distribution</h3>
+    <canvas baseChart
+      [data]="pieChartData"
+      [type]="'pie'">
+    </canvas>
+  </mat-card>
+
+  <mat-card>
+    <h3>Skill Proficiency</h3>
+    <canvas baseChart
+      [data]="barChartData"
+      [type]="'bar'">
+    </canvas>
+  </mat-card>
+
+</div>
+    <!-- Applications Table -->
+    <mat-card class="table-card">
+        <h3>Recent Applications</h3>
+
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z2">
+
+            <ng-container matColumnDef="company">
+                <th mat-header-cell *matHeaderCellDef> Company </th>
+                <td mat-cell *matCellDef="let element"> {{element.company}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="role">
+                <th mat-header-cell *matHeaderCellDef> Role </th>
+                <td mat-cell *matCellDef="let element"> {{element.role}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+                <th mat-header-cell *matHeaderCellDef> Status </th>
+                <td mat-cell *matCellDef="let element">
+                    <span [ngClass]="{
+                      'status-shortlisted': element.status === 'Shortlisted',
+                      'status-rejected': element.status === 'Rejected',
+                      'status-applied': element.status === 'Applied'
+                    }">
+                        {{element.status}}
+                    </span>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+
+        </table>
+    </mat-card>
+
+</div>

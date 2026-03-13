@@ -1,0 +1,29 @@
+.login-container {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url('/images/login-background.png');
+  background-size: cover;
+  background-position: center;
+}
+
+.login-card {
+  width: 400px;
+  padding: 20px;
+  background-color: white !important;
+  border-radius: 8px;
+  box-shadow: inset 0px 0px 10px 9px rgb(68 125 215);
+  text-align: center;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.links {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+}

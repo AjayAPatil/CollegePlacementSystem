@@ -1,0 +1,72 @@
+<div class="profile-container">
+
+  <!-- Profile Summary Card -->
+  <mat-card class="summary-card">
+    <h2>{{ profileForm.value.firstName || 'Student Name' }}</h2>
+    <p>{{ profileForm.value.email || 'email@example.com' }}</p>
+    <p>Department: {{ profileForm.value.department || '-' }}</p>
+    <p>CGPA: {{ profileForm.value.cgpa || '-' }}</p>
+  </mat-card>
+
+  <!-- Editable Form -->
+  <mat-card class="form-card">
+    <form [formGroup]="profileForm">
+
+      <mat-form-field appearance="outline">
+        <mat-label>First Name</mat-label>
+        <input matInput formControlName="firstName">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Last Name</mat-label>
+        <input matInput formControlName="lastName">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Phone</mat-label>
+        <input matInput formControlName="phone">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Department</mat-label>
+        <mat-select formControlName="department">
+          <mat-option value="CSE">CSE</mat-option>
+          <mat-option value="IT">IT</mat-option>
+          <mat-option value="ENTC">ENTC</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>CGPA</mat-label>
+        <input matInput type="number" formControlName="cgpa">
+      </mat-form-field>
+
+      <button mat-raised-button color="primary" (click)="saveProfile()">
+        Save
+      </button>
+
+    </form>
+  </mat-card>
+
+  <!-- Skills Section -->
+  <mat-card class="skills-card">
+    <h3>Skills</h3>
+
+    <mat-chip-set>
+      <mat-chip *ngFor="let skill of skills" removable (removed)="removeSkill(skill)">
+        {{ skill }}
+        <mat-icon matChipRemove>cancel</mat-icon>
+      </mat-chip>
+    </mat-chip-set>
+
+    <input #skillInput placeholder="Add Skill">
+    <button mat-button (click)="addSkill(skillInput)">Add</button>
+
+  </mat-card>
+
+</div>

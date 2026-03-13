@@ -1,0 +1,57 @@
+<div class="container">
+
+  @if (registerType) {
+
+  @if (registerType === 'student') {
+
+  <app-student></app-student>
+
+  } @else if (registerType === 'company') {
+
+  <mat-card>
+    <h2>Company Registration</h2>
+
+    <form [formGroup]="companyForm" (ngSubmit)="submitCompany()">
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Company Name</mat-label>
+        <input matInput formControlName="companyName">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Phone</mat-label>
+        <input matInput formControlName="phone">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Website</mat-label>
+        <input matInput formControlName="website">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Address</mat-label>
+        <textarea matInput formControlName="address"></textarea>
+      </mat-form-field>
+
+      <button mat-raised-button color="accent" type="submit">
+        Register as Company
+      </button>
+
+    </form>
+  </mat-card>
+
+  }
+
+  }
+
+</div>

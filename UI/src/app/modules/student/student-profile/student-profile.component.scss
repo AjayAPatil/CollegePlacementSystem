@@ -1,0 +1,20 @@
+.profile-container {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 20px;
+  padding: 20px;
+}
+
+.summary-card {
+  height: fit-content;
+}
+
+.form-card form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 15px;
+}
+
+.skills-card {
+  grid-column: span 2;
+}
