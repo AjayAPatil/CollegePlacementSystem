@@ -13,8 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\Uploads\Resume\" />
-    <Folder Include="wwwroot\Uploads\ProfilePhoto\" />
+    <Folder Include="Uploads\" />
   </ItemGroup>
 
 </Project>
