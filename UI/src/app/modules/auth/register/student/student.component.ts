@@ -25,7 +25,8 @@ export class StudentComponent implements OnInit {
   genderOptions = CommonConstants.GenderOptions;
   bloodGroupOptions = CommonConstants.BloodGroupOptions;
 
-  constructor(private fb: FormBuilder,
+  constructor(
+    private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
     private globalService: GlobalService

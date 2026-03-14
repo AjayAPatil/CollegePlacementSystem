@@ -1,0 +1,90 @@
+<mat-card class="company-modify" appearance="outlined">
+  <mat-card-header>
+    <div mat-card-avatar>
+      <mat-icon mat-card-avatar style="font-size: xx-large; padding: 5px; cursor: pointer;"
+        (click)="backToList()">arrow_back</mat-icon>
+    </div>
+    <mat-card-title>{{actionTitle}}</mat-card-title>
+    <mat-card-subtitle>{{actionDescription}}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="companyForm">
+      <div class="grid-4">
+        <mat-form-field appearance="outline" class="grid-span-4">
+          <mat-label>Company Name</mat-label>
+          <input matInput formControlName="companyName">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Website</mat-label>
+          <input matInput formControlName="website">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Industry</mat-label>
+          <input matInput formControlName="industry">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Location</mat-label>
+          <input matInput formControlName="location">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>HR Name</mat-label>
+          <input matInput formControlName="hrName">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Contact Email</mat-label>
+          <input matInput formControlName="contactEmail">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Contact Phone</mat-label>
+          <input matInput formControlName="contactPhone">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Founded Year</mat-label>
+          <input matInput formControlName="foundedYear">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Company Size</mat-label>
+          <input matInput formControlName="companySize">
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="grid-span-4">
+          <mat-label>Description</mat-label>
+          <input matInput formControlName="description">
+        </mat-form-field>
+
+        <div class="upload-box grid-span-4" (click)="logoInput.click()">
+
+          <mat-icon style="color: rgb(50,146,225)">cloud_upload</mat-icon>
+
+          @if (!logoFileName) {
+          <div>Drag & drop logo or click to upload</div>
+          }
+          @else {
+          <div class="file-name">
+            <mat-icon>image</mat-icon>
+            {{ logoFileName }}
+          </div>
+          }
+
+          <input type="file" #logoInput hidden accept="image/jpg, image/png, image/jpeg" (change)="uploadLogo($event)">
+        </div>
+      </div>
+    </form>
+  </mat-card-content>
+  <mat-card-actions style="justify-content: flex-end; margin-top: 10px;">
+    <button matButton="tonal" color="primary" class="btn-company" (click)="clear()">
+      Clear
+    </button>
+    <button matButton="filled" color="primary" class="btn-company" (click)="save()">
+      <mat-icon>save</mat-icon> Save
+    </button>
+  </mat-card-actions>
+</mat-card>

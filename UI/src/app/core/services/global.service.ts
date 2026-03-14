@@ -22,7 +22,8 @@ export class GlobalService {
 
   public clearUserInfo(reload: boolean = true) {
     this.userInfo = new UserModel();
-    sessionStorage.removeItem('userInfo');
+    localStorage.clear();
+    sessionStorage.clear();
     this.userInfoUpdated.emit(true);
     if (reload) {
       this.triggerReload();
@@ -30,7 +31,14 @@ export class GlobalService {
   }
   private triggerReload() {
     setTimeout(() => {
-    window.location.reload();
+      window.location.reload();
     }, 100);
+  }
+
+  public showSuccessMessage(messageText: string) {
+    this.showMessage.emit({ text: messageText, type: 'success' });
+  }
+  public showErrorMessage(messageText: string) {
+    this.showMessage.emit({ text: messageText, type: 'error' });
   }
 }

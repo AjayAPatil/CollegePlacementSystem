@@ -41,16 +41,24 @@ namespace API.Controllers
             try
             {
                 if (reqestData == null)
+                {
                     return BadRequest("User data is required.");
+                }
+
                 if (string.IsNullOrEmpty(reqestData.Data))
+                {
                     return BadRequest("User data is required.");
+                }
+
                 UserModel? user = System.Text.Json.JsonSerializer.Deserialize<UserModel>(reqestData.Data, new System.Text.Json.JsonSerializerOptions
                 {
                     PropertyNameCaseInsensitive = true,
                     NumberHandling = JsonNumberHandling.AllowReadingFromString
                 });
                 if (user == null)
+                {
                     return BadRequest("Invalid user data.");
+                }
 
                 if (user.UserName == null || user.Email == null || user.PasswordHash == null || user.Role == null || user.Status == null)
                 {
@@ -84,11 +92,11 @@ namespace API.Controllers
                 {
                     string fileName = Guid.NewGuid() + Path.GetExtension(reqestData.ProfilePhoto.FileName);
 
-                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+                    string uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "ProfilePhotos");
 
                     if (!Directory.Exists(uploadFolder))
                     {
-                        Directory.CreateDirectory(uploadFolder);
+                        _ = Directory.CreateDirectory(uploadFolder);
                     }
 
                     string path = Path.Combine(uploadFolder, fileName);
@@ -98,18 +106,18 @@ namespace API.Controllers
                         await reqestData.ProfilePhoto.CopyToAsync(stream);
                     }
 
-                    profilePath = fileName;
+                    profilePath = path;
                 }
 
                 if (reqestData.Resume != null)
                 {
                     string fileName = Guid.NewGuid() + Path.GetExtension(reqestData.Resume.FileName);
 
-                    var uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads");
+                    string uploadFolder = Path.Combine(Directory.GetCurrentDirectory(), "Uploads", "Resumes");
 
                     if (!Directory.Exists(uploadFolder))
                     {
-                        Directory.CreateDirectory(uploadFolder);
+                        _ = Directory.CreateDirectory(uploadFolder);
                     }
 
                     string path = Path.Combine(uploadFolder, fileName);
@@ -119,34 +127,17 @@ namespace API.Controllers
                         await reqestData.Resume.CopyToAsync(stream);
                     }
 
-                    resumePath = fileName;
+                    resumePath = path;
                 }
 
 
                 if (user.UserId > 0)
                 {
-                    string updateSql = @"
-                    UPDATE Users
-                    SET UserName = @UserName,
-                        FirstName = @FirstName,
-                        LastName = @LastName,
-                        Email = @Email,
-                        PasswordHash = @PasswordHash,
-                        Role = @Role,
-                        Status = @Status
-                    WHERE UserId = @UserId";
-                    var rowsAffected = await _sqlQueryHelper.ExecuteAsync(updateSql, user);
-                    if (rowsAffected > 0)
-                    {
-                        return CreatedAtAction(nameof(Get), new { userId = user.UserId }, new { UserId = user.UserId });
-                    }
-                    else
-                    {
-                        return NotFound();
-                    }
+                    return NotFound();
                 }
                 user.CreatedAt = DateTime.UtcNow;
                 user.ProfileImagePath = profilePath;
+                user.PasswordHash = "Pass@123";
                 // Insert User
                 string userSql = @"
 INSERT INTO Users (UserName, PasswordHash, Role, Status, ProfileImagePath, Email, MobileNo, StreetAddress, City, District, State, Country, PinCode, IsDeleted, CreatedAt, UpdatedAt)
@@ -186,7 +177,8 @@ values (@varUserId, @CompanyName, @Industry, @CompanySize, @Website, @Descriptio
                     return CreatedAtAction(nameof(Get), new { userId = newUserId });
                 }
                 return Ok(user);
-            } catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }

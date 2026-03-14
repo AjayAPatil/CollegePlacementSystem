@@ -4,19 +4,23 @@ import { CommonModule } from '@angular/common';
 import { AdminRoutingModule } from './admin-routing.module';
 import { AdminComponent } from './admin.component';
 import { AdminDashboardComponent } from './admin-dashboard/admin-dashboard.component';
-import { SidenavComponent } from '../../layout';
-import { MaterialModule } from '../../shared';
+import { SharedModule } from '../../shared';
+import { AdminStudentsComponent } from './admin-students/admin-students.component';
+import { AdminCompaniesComponent } from './admin-companies/admin-companies.component';
+import { AdminCompaniesModifyComponent } from './admin-companies/admin-companies-modify/admin-companies-modify.component';
 
 @NgModule({
   declarations: [
     AdminComponent,
     AdminDashboardComponent,
-    SidenavComponent
+    AdminStudentsComponent,
+    AdminCompaniesComponent,
+    AdminCompaniesModifyComponent
   ],
   imports: [
     CommonModule,
     AdminRoutingModule,
-    MaterialModule
+    SharedModule
   ],
 })
 export class AdminModule { }

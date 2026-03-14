@@ -2,7 +2,13 @@
 {
     public class InitialQuery
     {
-        public const string DropAndCreateTables = @"
+        public const string InsertAdmin = @"
+INSERT INTO Users (UserName, PasswordHash, Role, Status, ProfileImagePath, Email, MobileNo, StreetAddress, City, District, State, Country, PinCode, IsDeleted, CreatedAt, UpdatedAt)
+VALUES ('Admin', 'Pass@123', 'Admin', 'Active', '', 'Admin', '', '', '', '', '', '', '', 0, GETDATE(), GETDATE());
+SELECT CAST(SCOPE_IDENTITY() as bigint)
+";
+
+        public const string DropAndCreateTables = @$"
 /*------------------------------------------------
 DROP FOREIGN KEYS FIRST
 ------------------------------------------------*/
@@ -129,6 +135,8 @@ CREATE TABLE [dbo].[Companies] (
     REFERENCES Users(UserId)
     ON DELETE CASCADE
 );
+
+{InsertAdmin}
 ";
     }
 }

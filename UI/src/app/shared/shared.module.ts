@@ -16,9 +16,23 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { BaseChartDirective } from 'ng2-charts';
+import { CommonModule } from '@angular/common';
+import { SidenavComponent } from '../layout';
+import { MatDialogModule } from '@angular/material/dialog';
+import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialog';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatStepperModule } from '@angular/material/stepper';
+import { RouterModule } from '@angular/router';
+import { MatDatepickerModule } from '@angular/material/datepicker'
 
 @NgModule({
+  declarations: [
+    SidenavComponent
+  ],
   imports: [
+    CommonModule,
+    RouterModule,
     MatToolbarModule,
     MatButtonModule,
     MatSidenavModule,
@@ -33,14 +47,17 @@ import { BaseChartDirective } from 'ng2-charts';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatButtonModule,
     MatChipsModule,
-    ReactiveFormsModule,
-    MatIconModule,
-    MatSidenavModule,
-    MatToolbarModule,
+    ReactiveFormsModule,    
+    MatDialogModule,
+    RegisterTypeDialog,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatStepperModule,
+    MatDatepickerModule
   ],
   exports:  [
+    RouterModule,
     MatToolbarModule,
     MatButtonModule,
     MatSidenavModule,
@@ -55,12 +72,15 @@ import { BaseChartDirective } from 'ng2-charts';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatButtonModule,
     MatChipsModule,
     ReactiveFormsModule,
-    MatIconModule,
-    MatSidenavModule,
-    MatToolbarModule,
+    SidenavComponent,
+    MatDialogModule,
+    RegisterTypeDialog,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatStepperModule,
+    MatDatepickerModule
   ],
 })
-export class MaterialModule { }
+export class SharedModule { }

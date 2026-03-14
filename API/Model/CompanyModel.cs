@@ -18,6 +18,11 @@
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         // Navigation
-        public UserModel? User { get; set; }
+        public List<UserModel>? Users { get; set; }
+    }
+    public class CompanyCreateDTO
+    {
+        public IFormFile? CompanyLogo { get; set; }
+        public string? Data { get; set; }
     }
 }

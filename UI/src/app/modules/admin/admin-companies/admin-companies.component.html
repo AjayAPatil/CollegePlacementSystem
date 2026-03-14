@@ -1,0 +1,28 @@
+<div class="company-topbar">
+  <mat-toolbar>
+    <span>Registered Companies</span>
+    <span class="company-topbar-spacer"></span>
+    <button matButton="filled" color="primary" class="full-width" (click)="addNew()">
+      <mat-icon>add</mat-icon> Add
+    </button>
+  </mat-toolbar>
+</div>
+
+@if(activity == 'list') {
+<div>
+  <table mat-table [dataSource]="studentDataSource" class="mat-elevation-z8 demo-table">
+    <!-- Position Column -->
+    <ng-container matColumnDef="companyName">
+      <th mat-header-cell *matHeaderCellDef> CName </th>
+      <td mat-cell *matCellDef="let element"> {{element.companyName}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="studentTblColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: studentTblColumns;"></tr>
+  </table>
+
+
+</div>
+} @else {
+<app-admin-companies-modify [activity]="activity" (activityChange) = "activity = $event; getCompanyList();"></app-admin-companies-modify>
+}

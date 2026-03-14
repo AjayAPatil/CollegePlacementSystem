@@ -2,6 +2,8 @@ import { Component, inject } from '@angular/core';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { Observable } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
+import { GlobalService } from '../../core';
+import { UserModel } from '../../shared';
 
 @Component({
   selector: 'app-sidenav',
@@ -11,6 +13,11 @@ import { map, shareReplay } from 'rxjs/operators';
 })
 export class SidenavComponent {
   private breakpointObserver = inject(BreakpointObserver);
+  public userInfo: UserModel = new UserModel();
+
+  constructor(private globalService: GlobalService) {
+    this.userInfo = this.globalService.userInfo;
+  }
 
   isHandset$: Observable<boolean> = this.breakpointObserver.observe(Breakpoints.Handset).pipe(
     map((result) => result.matches),

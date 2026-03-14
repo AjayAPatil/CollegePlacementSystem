@@ -22,8 +22,9 @@ export class LoginComponent implements OnInit {
     private cdref: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
-      email: ['admin@admin.com', [Validators.required, Validators.email]],
-      password: ['A@123.aaa', Validators.required]
+      //email: ['ajaypatil9765@gmail.com', [Validators.required]],
+      email: ['Admin', [Validators.required]],
+      passwordHash: ['Pass@123', Validators.required]
     });
   }
 
@@ -34,44 +35,38 @@ export class LoginComponent implements OnInit {
 
   onSubmit() {
     if (this.loginForm.invalid) return;
-    
-    //   this.authService.login(this.loginForm.value)
-    //     .subscribe(response => {
-    let response = new UserModel();
-    
-      response.isLoggedIn = true;
-      response.userId = 1;
-      response.userName = this.loginForm.value.email;
-      response.email = this.loginForm.value.email;
-      response.passwordHash = this.loginForm.value.password;
-      response.role = UserRoleConstants.Admin;
-      response.status = 'Active';
-      //response.firstName = 'Student';
-      //response.lastName = 'One';
-      //response.bloodGroup = 'A+';
-      response.city = 'Mumbai';
-      response.state = 'Maharashtra';
-      response.country = 'India';
-      response.pinCode = 400001;
 
-    this.globalService.setUserInfo(response);
-    this.globalService.showMessage.emit({text: 'logged in', type:'success'})
-    this.cdref.detectChanges();
-    //       localStorage.setItem('token', response.token);
-    //       localStorage.setItem('role', response.role);
+    this.authService.login(this.loginForm.value)
+      .subscribe({
+        next: (response: any) => {
+          if (response.status == '0') {
+            this.globalService.showSuccessMessage(response.message);
+            const userInfo = response.data as UserModel;
+            userInfo.isLoggedIn = true;
+            this.globalService.setUserInfo(userInfo);
+            this.cdref.detectChanges();
+            localStorage.setItem('token', response.token);
+            localStorage.setItem('role', userInfo.role);
+            this.navigateToDashboard(userInfo.role)
+          } else {
 
-          if (response.role === UserRoleConstants.Admin) {
-            this.router.navigate(['/admin/dashboard']);
+            this.globalService.showErrorMessage(response.message);
           }
-          else if (response.role === UserRoleConstants.Student) {
-            this.router.navigate(['/student/dashboard']);
-          }
-          else if (response.role === UserRoleConstants.Company) {
-            this.router.navigate(['/company/dashboard']);
-          }
+        }, error: () => {
+          this.globalService.showErrorMessage('Error While Fetching API')
+        }
+      });
+  }
 
-    //     }, error => {
-    //       alert('Invalid credentials');
-    //     });
+  private navigateToDashboard(role: string) {
+    if (role === UserRoleConstants.Admin) {
+      this.router.navigate(['/admin/dashboard']);
+    }
+    else if (role === UserRoleConstants.Student) {
+      this.router.navigate(['/student/dashboard']);
+    }
+    else if (role === UserRoleConstants.Company) {
+      this.router.navigate(['/company/dashboard']);
+    }
   }
 }

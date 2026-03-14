@@ -3,13 +3,24 @@ using API.Common;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+
+// OpenAPI
 builder.Services.AddOpenApi();
 
 // Register SQL helper service
 builder.Services.AddSingleton<ISqlQueryHelper, SqlQueryHelper>();
+
+// CORS configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
 
@@ -20,6 +31,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Enable CORS BEFORE authorization
+app.UseCors("CorsPolicy");
 
 app.UseAuthorization();
 
