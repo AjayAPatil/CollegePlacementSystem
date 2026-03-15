@@ -11,7 +11,7 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class AdminCompaniesComponent implements OnInit {
 
-  studentTblColumns: string[] = ['companyName'];
+  studentTblColumns: string[] = ['companyName', 'contactEmail' ,'contactPhone', 'hrName'];
   studentDataSource = new MatTableDataSource<CompanyModel>();
   activity: string = 'list'; //list, add, edit, view
 

@@ -1,4 +1,5 @@
 ﻿using API.Common;
+using API.Constants;
 using API.Model;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json.Serialization;
@@ -18,8 +19,19 @@ namespace API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CompanyModel>>> Get()
         {
-            string sql = "select * from Companies with(nolock)";
+            string sql = "select * from Companies c with(nolock)";
             List<CompanyModel> companyList = await _sqlQueryHelper.GetListAsync<CompanyModel>(sql);
+            sql = "select * from Users u with(nolock) where Email in ("
+                + string.Join(",", companyList.Select(c => $"'{c.ContactEmail ?? c.CompanyName.Replace(" ", "")[..10]}'").ToList())
+                + ")";
+            List<UserModel> userList = await _sqlQueryHelper.GetListAsync<UserModel>(sql);
+            companyList = companyList.Select(company =>
+            {
+                company.Users = userList.Where(u => u.UserName == (company.ContactEmail ?? company.CompanyName.Replace(" ", "")[..10])).ToList();
+                return company;
+            })
+            .ToList();
+
             return Ok(companyList);
         }
 
@@ -30,12 +42,20 @@ namespace API.Controllers
             {
                 if (requestData == null)
                 {
-                    return BadRequest("User data is required.");
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "Request data is null",
+                    });
                 }
 
                 if (string.IsNullOrEmpty(requestData.Data))
                 {
-                    return BadRequest("User data is required.");
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "Request data is null",
+                    });
                 }
 
                 CompanyModel? company = System.Text.Json.JsonSerializer.Deserialize<CompanyModel>(requestData.Data, new System.Text.Json.JsonSerializerOptions
@@ -45,7 +65,11 @@ namespace API.Controllers
                 });
                 if (company == null)
                 {
-                    return BadRequest("Invalid company data.");
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "Invalid company data.",
+                    });
                 }
 
                 if (requestData.CompanyLogo != null)
@@ -61,7 +85,7 @@ namespace API.Controllers
 
                     string path = Path.Combine(uploadFolder, fileName);
 
-                    using (var stream = new FileStream(path, FileMode.Create))
+                    using (FileStream stream = new(path, FileMode.Create))
                     {
                         await requestData.CompanyLogo.CopyToAsync(stream);
                     }
@@ -72,22 +96,83 @@ namespace API.Controllers
                 string sql = "select * from Companies with(nolock) where ContactEmail = @ContactEmail";
                 List<CompanyModel> companyList = await _sqlQueryHelper.GetListAsync<CompanyModel>(sql, new { company.ContactEmail });
 
-                if(companyList.Any())
+                if (companyList.Any())
                 {
                     return Ok(new ResponseModel
                     {
                         Status = ResponseStatus.Failure,
                         Message = "Company already registered!",
-                        Data = companyList
                     });
+                }
+                sql = "select * from Users with(nolock) where Email = @ContactEmail";
+                List<UserModel> userList = await _sqlQueryHelper.GetListAsync<UserModel>(sql, new { company.ContactEmail });
+
+                if (userList.Any())
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "Email Id Registered in Users!",
+                    });
+                }
+
+                UserModel user = new()
+                {
+                    PasswordHash = "Pass@123",
+                    CreatedAt = DateTime.UtcNow,
+                    ProfileImagePath = company.LogoUrl,
+                    Email = company.ContactEmail ?? company.CompanyName.Replace(" ", "")[..10],
+                    IsDeleted = false,
+                    MobileNo = company.ContactPhone ?? string.Empty,
+                    Role = UserRole.Company,
+                    UserName = string.Empty,
+                    UpdatedAt = DateTime.UtcNow,
+                    Status = UserStatus.Active,
                 };
+                user.UserName = user.Email;
+                // Insert User
+                string userSql = @"
+INSERT INTO Users (UserName, PasswordHash, Role, Status, ProfileImagePath, Email, MobileNo, StreetAddress, City, District, State, Country, PinCode, IsDeleted, CreatedAt, UpdatedAt)
+VALUES (@UserName, @PasswordHash, @Role, @Status, @ProfileImagePath, @Email, @MobileNo, @StreetAddress, @City, @District, @State, @Country, @PinCode, @IsDeleted, @CreatedAt, @UpdatedAt);
+SELECT CAST(SCOPE_IDENTITY() as bigint);
+";
 
+                long? newUserId = await _sqlQueryHelper.GetSingleAsync<long>(userSql, user);
+                if (newUserId == null)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "Failed to create user.",
+                        Data = user
+                    });
+                }
 
-                return Ok(companyList);
+                company.UserId = (long)newUserId;
+
+                string companySql = @"
+Insert into Companies (UserId, CompanyName, Industry, CompanySize, Website, Description, CreatedAt, Location, HRName, ContactEmail, ContactPhone, FoundedYear, LogoUrl)
+values (@UserId, @CompanyName, @Industry, @CompanySize, @Website, @Description, @CreatedAt, @Location, @HRName, @ContactEmail, @ContactPhone, @FoundedYear, @LogoUrl)
+";
+                _ = await _sqlQueryHelper.ExecuteAsync(companySql, company);
+
+                company.Users = [user];
+
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Success,
+                    Message = "Company Resgistration Completed!",
+                    Data = company
+                });
             }
             catch (Exception ex)
             {
-                return Ok();
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Failure,
+                    Message = ex.Message,
+                    Data = ex
+                });
             }
         }
     }

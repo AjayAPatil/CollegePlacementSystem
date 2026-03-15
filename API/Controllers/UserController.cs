@@ -84,6 +84,18 @@ namespace API.Controllers
                 {
                     return BadRequest("Company details are required for company role.");
                 }
+                string sql = "select * from Users with(nolock) where Email = @Email";
+                List<UserModel> userList = await _sqlQueryHelper.GetListAsync<UserModel>(sql, new { user.Email });
+
+                if (userList.Any())
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "Email Id Already Registered!",
+                        Data = userList
+                    });
+                }
 
                 string profilePath = "";
                 string resumePath = "";

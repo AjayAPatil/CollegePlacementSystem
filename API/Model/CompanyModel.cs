@@ -1,6 +1,6 @@
 ﻿namespace API.Model
 {
-    public class CompanyModel
+    public class CompanyModel 
     {
         public long Id { get; set; }
         public long UserId { get; set; }

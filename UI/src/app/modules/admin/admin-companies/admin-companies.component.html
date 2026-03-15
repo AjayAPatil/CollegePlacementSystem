@@ -11,10 +11,22 @@
 @if(activity == 'list') {
 <div>
   <table mat-table [dataSource]="studentDataSource" class="mat-elevation-z8 demo-table">
-    <!-- Position Column -->
+   
     <ng-container matColumnDef="companyName">
-      <th mat-header-cell *matHeaderCellDef> CName </th>
+      <th mat-header-cell *matHeaderCellDef> Company Name </th>
       <td mat-cell *matCellDef="let element"> {{element.companyName}} </td>
+    </ng-container>
+    <ng-container matColumnDef="contactEmail">
+      <th mat-header-cell *matHeaderCellDef> Email </th>
+      <td mat-cell *matCellDef="let element"> {{element.contactEmail}} </td>
+    </ng-container>
+    <ng-container matColumnDef="contactPhone">
+      <th mat-header-cell *matHeaderCellDef> Phone </th>
+      <td mat-cell *matCellDef="let element"> {{element.contactPhone}} </td>
+    </ng-container>
+    <ng-container matColumnDef="hrName">
+      <th mat-header-cell *matHeaderCellDef> HR Name </th>
+      <td mat-cell *matCellDef="let element"> {{element.hrName}} </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="studentTblColumns"></tr>

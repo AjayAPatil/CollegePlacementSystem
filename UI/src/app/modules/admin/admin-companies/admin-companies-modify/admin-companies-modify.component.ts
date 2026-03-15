@@ -3,6 +3,7 @@ import { AdminService } from '../../services/admin.service';
 import { CompanyModel, ResponseModel, UserModel } from '../../../../shared';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { GlobalService } from '../../../../core';
 
 @Component({
   selector: 'app-admin-companies-modify',
@@ -31,7 +32,8 @@ export class AdminCompaniesModifyComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private adminService: AdminService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private globalService: GlobalService
   ) {
     this.companyForm = this.fb.group({
       companyName: ['', Validators.required],
@@ -96,11 +98,16 @@ export class AdminCompaniesModifyComponent implements OnInit {
     dataToSubmit.append('companyLogo', this.companyForm.value.logo);
     dataToSubmit.append('data', JSON.stringify(companyData));
 
-    // this.adminService.saveCompany(dataToSubmit).subscribe({
-    //   next: (response: ResponseModel) => {
-        this.backToList()
-    //   }
-    // })
+    this.adminService.saveCompany(dataToSubmit).subscribe({
+      next: (response: ResponseModel) => {
+        if (response?.status == "0") {
+          this.globalService.showSuccessMessage(response.message);
+          this.backToList()
+        } else {
+          this.globalService.showErrorMessage(response.message);
+        }
+      }
+    })
 
   }
 }
