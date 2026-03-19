@@ -31,6 +31,20 @@
       </a>
 
       }
+
+      @if(userInfo.role == 'Company') {
+
+      <a mat-list-item routerLink="/company/dashboard" routerLinkActive="active">
+        Dashboard
+      </a>
+      <a mat-list-item routerLink="/company/jobs" routerLinkActive="active">
+        Jobs
+      </a>
+      <a mat-list-item routerLink="/company/students" routerLinkActive="active">
+        Students
+      </a>
+
+      }
     </mat-nav-list>
   </mat-sidenav>
   <mat-sidenav-content class="sidenav-content">
