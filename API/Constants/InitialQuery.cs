@@ -13,6 +13,11 @@ SELECT CAST(SCOPE_IDENTITY() as bigint)
 DROP FOREIGN KEYS FIRST
 ------------------------------------------------*/
 
+IF OBJECT_ID('dbo.Jobs', 'U') IS NOT NULL
+BEGIN
+    ALTER TABLE dbo.Jobs DROP CONSTRAINT FK_Jobs_Users;
+END
+
 IF OBJECT_ID('dbo.Students', 'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.Students DROP CONSTRAINT FK_Students_Users;
@@ -28,6 +33,7 @@ END
 DROP TABLES (Child first)
 ------------------------------------------------*/
 
+DROP TABLE IF EXISTS dbo.Jobs;
 DROP TABLE IF EXISTS dbo.Students;
 DROP TABLE IF EXISTS dbo.Companies;
 DROP TABLE IF EXISTS dbo.Users;
@@ -134,6 +140,56 @@ CREATE TABLE [dbo].[Companies] (
     FOREIGN KEY (UserId)
     REFERENCES Users(UserId)
     ON DELETE CASCADE
+);
+
+
+
+/*------------------------------------------------
+CREATE JOBS TABLE
+------------------------------------------------*/
+
+CREATE TABLE [dbo].[Jobs] (
+    JobId BIGINT IDENTITY(1,1) PRIMARY KEY,
+
+    CompanyId BIGINT NOT NULL,
+
+    JobTitle NVARCHAR(200) NOT NULL,
+    Department NVARCHAR(100),
+
+    JobType NVARCHAR(50) NOT NULL,   -- Full-time, Internship, etc.
+    WorkMode NVARCHAR(50) NOT NULL,  -- Remote, Hybrid, On-site
+
+    Location NVARCHAR(150) NOT NULL,
+
+    ExperienceMin INT NOT NULL,
+    ExperienceMax INT NOT NULL,
+
+    SalaryMin DECIMAL(10,2),
+    SalaryMax DECIMAL(10,2),
+
+    Openings INT NOT NULL DEFAULT 1,
+
+    Responsibilities NVARCHAR(MAX),
+    RequiredSkills NVARCHAR(MAX),
+    PreferredSkills NVARCHAR(MAX),
+    Qualifications NVARCHAR(MAX),
+    Benefits NVARCHAR(MAX),
+
+    Status NVARCHAR(20) NOT NULL DEFAULT 'draft', -- draft, published, closed
+
+    ExpiryDate DATE,
+
+    CreatedBy BIGINT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    UpdatedAt DATETIME2 NULL,
+
+    CONSTRAINT FK_Jobs_Users
+        FOREIGN KEY (CreatedBy)
+        REFERENCES Users(UserId)
+        ON DELETE NO ACTION,
+    CONSTRAINT FK_Jobs_Company FOREIGN KEY (CompanyId)
+        REFERENCES Companies(Id)
+        ON DELETE CASCADE
 );
 
 {InsertAdmin}

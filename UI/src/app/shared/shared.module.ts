@@ -1,5 +1,10 @@
 import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+
+import { ReactiveFormsModule } from '@angular/forms';
+
+// Angular Material
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -8,23 +13,25 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
-import { BaseChartDirective } from 'ng2-charts';
-import { CommonModule } from '@angular/common';
-import { SidenavComponent } from '../layout';
 import { MatDialogModule } from '@angular/material/dialog';
-import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatStepperModule } from '@angular/material/stepper';
-import { RouterModule } from '@angular/router';
-import { MatDatepickerModule } from '@angular/material/datepicker'
+
+// ✅ Datepicker (CLEAN)
+import { MatDatepickerModule } from '@angular/material/datepicker';
+
+import { BaseChartDirective } from 'ng2-charts';
+
+// Components
+import { SidenavComponent } from '../layout';
+import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialog';
 
 @NgModule({
   declarations: [
@@ -33,6 +40,8 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
   imports: [
     CommonModule,
     RouterModule,
+
+    // Material
     MatToolbarModule,
     MatButtonModule,
     MatSidenavModule,
@@ -43,44 +52,63 @@ import { MatDatepickerModule } from '@angular/material/datepicker'
     MatSnackBarModule,
     MatCardModule,
     MatTableModule,
-    BaseChartDirective,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
     MatChipsModule,
-    ReactiveFormsModule,    
     MatDialogModule,
-    RegisterTypeDialog,
     MatCheckboxModule,
     MatRadioModule,
     MatStepperModule,
-    MatDatepickerModule
-  ],
-  exports:  [
-    RouterModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatSidenavModule,
-    MatIconModule,
-    MatListModule,
-    MatExpansionModule,
-    MatMenuModule,
-    MatSnackBarModule,
-    MatCardModule,
-    MatTableModule,
-    BaseChartDirective,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatChipsModule,
+
+    // Forms
     ReactiveFormsModule,
-    SidenavComponent,
+
+    // Charts
+    BaseChartDirective,
+
+    // ✅ Date
+    MatDatepickerModule,
+
+    // Dialog component
+    RegisterTypeDialog
+  ],
+  exports: [
+    RouterModule,
+
+    // Material
+    MatToolbarModule,
+    MatButtonModule,
+    MatSidenavModule,
+    MatIconModule,
+    MatListModule,
+    MatExpansionModule,
+    MatMenuModule,
+    MatSnackBarModule,
+    MatCardModule,
+    MatTableModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatChipsModule,
     MatDialogModule,
-    RegisterTypeDialog,
     MatCheckboxModule,
     MatRadioModule,
     MatStepperModule,
-    MatDatepickerModule
+
+    // Forms
+    ReactiveFormsModule,
+
+    // Charts
+    BaseChartDirective,
+
+    // Components
+    SidenavComponent,
+    RegisterTypeDialog,
+
+    // ✅ Date
+    MatDatepickerModule,
   ],
+  providers: []
 })
-export class SharedModule { }
+export class SharedModule {}

@@ -1,8 +1,8 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { ChartConfiguration } from 'chart.js';
+import { Component, OnInit } from '@angular/core';
 import { CompanyService } from '../services/company.service';
-import { StudentModel } from '../../../shared';
+import { JobModel, ResponseModel } from '../../../shared';
 import { MatTableDataSource } from '@angular/material/table';
+import { GlobalService } from '../../../core';
 
 @Component({
   selector: 'app-company-jobs',
@@ -12,22 +12,80 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class CompanyJobsComponent implements OnInit {
 
-  studentTblColumns: string[] = ['firstName', 'lastName', 'userName', 'passwordHash'];
-  studentDataSource = new MatTableDataSource<StudentModel>();
+  jobTblColumns: string[] = ['action', 'jobTitle', 'jobType', 'workMode', 'location', 'experience', 'openings', 'status', 'expiryDate'];
+  jobDataSource = new MatTableDataSource<JobModel>();
+  activity: string = 'list'; //list, add, edit, view
+  selectedJob: JobModel | null = null;
 
-  constructor(private companyService: CompanyService) {
+  constructor(
+    private companyService: CompanyService,
+    private globalService: GlobalService
+  ) {
   }
 
   ngOnInit(): void {
-    this.getStudentList();
+    this.getJobList();
   }
 
-  private getStudentList() {
-    this.companyService.getStudents().subscribe({
-      next: (value: StudentModel[]) => {
-        console.log(value);
-        this.studentDataSource.data = value;
+  public getJobList() {
+    this.companyService.getJobs().subscribe({
+      next: (value: JobModel[]) => {
+        this.jobDataSource.data = value;
       }
     })
+  }
+  public addNew() {
+    this.selectedJob = null;
+    this.activity = 'add';
+  }
+
+  public editJob(job: JobModel) {
+    this.selectedJob = new JobModel(job);
+    this.activity = 'edit';
+  }
+
+  public publishJob(job: JobModel) {
+    this.updateJobStatus(job.jobId, 'published', 'Job published successfully.');
+  }
+
+  public closeJob(job: JobModel) {
+    this.updateJobStatus(job.jobId, 'closed', 'Job closed successfully.');
+  }
+
+  public deleteJob(job: JobModel) {
+    const shouldDelete = window.confirm(`Delete job "${job.jobTitle}"?`);
+    if (!shouldDelete) return;
+
+    this.companyService.deleteJob(job.jobId).subscribe({
+      next: (response: ResponseModel) => {
+        if (response?.status == '0') {
+          this.globalService.showSuccessMessage(response.message);
+          this.getJobList();
+          return;
+        }
+
+        this.globalService.showErrorMessage(response.message);
+      },
+      error: () => {
+        this.globalService.showErrorMessage('Failed to delete job.');
+      }
+    });
+  }
+
+  private updateJobStatus(jobId: number, status: string, successMessage: string) {
+    this.companyService.updateJobStatus(jobId, status).subscribe({
+      next: (response: ResponseModel) => {
+        if (response?.status == '0') {
+          this.globalService.showSuccessMessage(response.message || successMessage);
+          this.getJobList();
+          return;
+        }
+
+        this.globalService.showErrorMessage(response.message);
+      },
+      error: () => {
+        this.globalService.showErrorMessage('Failed to update job status.');
+      }
+    });
   }
 }

@@ -1,0 +1,176 @@
+<mat-card class="company-modify" appearance="outlined">
+  <mat-card-header>
+    <div mat-card-avatar>
+      <mat-icon mat-card-avatar style="font-size: xx-large; padding: 5px; cursor: pointer;"
+        (click)="backToList()">arrow_back</mat-icon>
+    </div>
+    <mat-card-title>{{actionTitle}}</mat-card-title>
+    <mat-card-subtitle>{{actionDescription}}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <form [formGroup]="companyForm">
+      <section class="grid-4">
+        <mat-form-field appearance="outline" class="grid-span-4">
+          <mat-label>Job Title</mat-label>
+          <input matInput formControlName="jobTitle">
+          @if (getControl('jobTitle')?.touched && getControl('jobTitle')?.hasError('required')) {
+          <mat-error>Job title is required</mat-error>
+          }
+          @if (getControl('jobTitle')?.touched && getControl('jobTitle')?.hasError('maxlength')) {
+          <mat-error>Job title cannot exceed 200 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Department</mat-label>
+          <input matInput formControlName="department">
+          @if (getControl('department')?.touched && getControl('department')?.hasError('maxlength')) {
+          <mat-error>Department cannot exceed 100 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Job Type</mat-label>
+          <mat-select formControlName="jobType">
+            <mat-option value="full-time">Full Time</mat-option>
+            <mat-option value="part-time">Part Time</mat-option>
+            <mat-option value="internship">Internship</mat-option>
+          </mat-select>
+          @if (getControl('jobType')?.touched && getControl('jobType')?.hasError('required')) {
+          <mat-error>Job type is required</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Work Mode</mat-label>
+          <mat-select formControlName="workMode">
+            <mat-option value="onsite">On-site</mat-option>
+            <mat-option value="remote">Remote</mat-option>
+            <mat-option value="hybrid">Hybrid</mat-option>
+          </mat-select>
+          @if (getControl('workMode')?.touched && getControl('workMode')?.hasError('required')) {
+          <mat-error>Work mode is required</mat-error>
+          }
+        </mat-form-field>
+      </section>
+
+      <section class="grid-4">
+        <mat-form-field appearance="outline">
+          <mat-label>Location</mat-label>
+          <input matInput formControlName="location">
+          @if (getControl('location')?.touched && getControl('location')?.hasError('required')) {
+          <mat-error>Location is required</mat-error>
+          }
+          @if (getControl('location')?.touched && getControl('location')?.hasError('maxlength')) {
+          <mat-error>Location cannot exceed 150 characters</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Min Experience</mat-label>
+          <input matInput type="number" formControlName="experienceMin">
+          @if (getControl('experienceMin')?.touched && getControl('experienceMin')?.hasError('required')) {
+          <mat-error>Minimum experience is required</mat-error>
+          }
+          @if (getControl('experienceMin')?.touched && getControl('experienceMin')?.hasError('min')) {
+          <mat-error>Minimum experience cannot be negative</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Max Experience</mat-label>
+          <input matInput type="number" formControlName="experienceMax">
+          @if (getControl('experienceMax')?.touched && getControl('experienceMax')?.hasError('required')) {
+          <mat-error>Maximum experience is required</mat-error>
+          }
+          @if (getControl('experienceMax')?.touched && getControl('experienceMax')?.hasError('min')) {
+          <mat-error>Maximum experience cannot be negative</mat-error>
+          }
+          @if ((getControl('experienceMax')?.touched || getControl('experienceMin')?.touched) && companyForm.hasError('experienceRange')) {
+          <mat-error>Maximum experience must be greater than or equal to minimum experience</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Min Salary</mat-label>
+          <input matInput type="number" formControlName="salaryMin">
+          @if (getControl('salaryMin')?.touched && getControl('salaryMin')?.hasError('min')) {
+          <mat-error>Minimum salary cannot be negative</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Max Salary</mat-label>
+          <input matInput type="number" formControlName="salaryMax">
+          @if (getControl('salaryMax')?.touched && getControl('salaryMax')?.hasError('min')) {
+          <mat-error>Maximum salary cannot be negative</mat-error>
+          }
+          @if ((getControl('salaryMax')?.touched || getControl('salaryMin')?.touched) && companyForm.hasError('salaryRange')) {
+          <mat-error>Maximum salary must be greater than or equal to minimum salary</mat-error>
+          }
+        </mat-form-field>
+      </section>
+
+      <section class="grid-4">
+        <mat-form-field appearance="outline" class="grid-span-4">
+          <mat-label>Responsibilities</mat-label>
+          <textarea matInput formControlName="responsibilities"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="grid-span-4">
+          <mat-label>Required Skills</mat-label>
+          <textarea matInput formControlName="requiredSkills"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="grid-span-4">
+          <mat-label>Preferred Skills</mat-label>
+          <textarea matInput formControlName="preferredSkills"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="grid-span-4">
+          <mat-label>Qualifications</mat-label>
+          <textarea matInput formControlName="qualifications"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="grid-span-4">
+          <mat-label>Benefits</mat-label>
+          <textarea matInput formControlName="benefits"></textarea>
+        </mat-form-field>
+      </section>
+
+      <section class="grid-4">
+        <mat-form-field appearance="outline">
+          <mat-label>Openings</mat-label>
+          <input matInput type="number" formControlName="openings">
+          @if (getControl('openings')?.touched && getControl('openings')?.hasError('required')) {
+          <mat-error>Openings is required</mat-error>
+          }
+          @if (getControl('openings')?.touched && getControl('openings')?.hasError('min')) {
+          <mat-error>Openings must be at least 1</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Expiry Date</mat-label>
+          <input matInput [min]="minExpiryData" [matDatepicker]="picker1" placeholder="dd/mm/yyyy" formControlName="expiryDate">
+          <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+          <mat-datepicker #picker1></mat-datepicker>
+          @if (getControl('expiryDate')?.touched && getControl('expiryDate')?.hasError('matDatepickerMin')) {
+          <mat-error>Expiry date cannot be in the past</mat-error>
+          }
+        </mat-form-field>
+      </section>
+    </form>
+  </mat-card-content>
+  <mat-card-actions style="justify-content: flex-end; margin-top: 10px;">
+    <button matButton="tonal" color="primary" class="btn-company" (click)="clear()">
+      Clear
+    </button>
+    <button matButton="filled" color="primary" class="btn-company" (click)="save('draft')">
+      <mat-icon>save</mat-icon> Save
+    </button>
+    <button matButton="filled" color="primary" class="btn-company" (click)="save('published')">
+      <mat-icon>save</mat-icon> Save & Publish
+    </button>
+  </mat-card-actions>
+</mat-card>

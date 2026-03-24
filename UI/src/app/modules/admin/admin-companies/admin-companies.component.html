@@ -1,17 +1,15 @@
-<div class="company-topbar">
-  <mat-toolbar>
-    <span>Registered Companies</span>
-    <span class="company-topbar-spacer"></span>
-    <button matButton="filled" color="primary" class="full-width" (click)="addNew()">
-      <mat-icon>add</mat-icon> Add
-    </button>
-  </mat-toolbar>
-</div>
+<mat-toolbar class="page-title-topbar">
+  <span>Registered Companies</span>
+  <span class="page-title-topbar-spacer"></span>
+  <button matButton="filled" color="primary" class="full-width" (click)="addNew()">
+    <mat-icon>add</mat-icon> Add
+  </button>
+</mat-toolbar>
 
 @if(activity == 'list') {
 <div>
   <table mat-table [dataSource]="studentDataSource" class="mat-elevation-z8 demo-table">
-   
+
     <ng-container matColumnDef="companyName">
       <th mat-header-cell *matHeaderCellDef> Company Name </th>
       <td mat-cell *matCellDef="let element"> {{element.companyName}} </td>
@@ -36,5 +34,6 @@
 
 </div>
 } @else {
-<app-admin-companies-modify [activity]="activity" (activityChange) = "activity = $event; getCompanyList();"></app-admin-companies-modify>
+<app-admin-companies-modify [activity]="activity"
+  (activityChange)="activity = $event; getCompanyList();"></app-admin-companies-modify>
 }

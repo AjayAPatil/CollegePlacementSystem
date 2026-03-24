@@ -1,0 +1,59 @@
+import { CompanyModel } from "./company.model";
+import { UserModel } from "./user.model";
+
+export class JobModel {
+  jobId: number;
+  companyId: number;
+  jobTitle: string;
+  department?: string;
+  jobType: string;
+  workMode: string;
+  location: string;
+  experienceMin: number;
+  experienceMax: number;
+  salaryMin?: number;
+  salaryMax?: number;
+  openings: number;
+  responsibilities?: string;
+  requiredSkills?: string;
+  preferredSkills?: string;
+  qualifications?: string;
+  benefits?: string;
+  status: string;
+  expiryDate?: Date;
+  createdBy: number;
+  createdAt: Date;
+  updatedAt?: Date;
+
+  // Navigation
+  company?: CompanyModel;
+  creator?: UserModel;
+
+  constructor(init?: Partial<JobModel>) {
+    this.jobId = init?.jobId ?? 0;
+    this.companyId = init?.companyId ?? 0;
+    this.jobTitle = init?.jobTitle ?? '';
+    this.department = init?.department;
+    this.jobType = init?.jobType ?? '';
+    this.workMode = init?.workMode ?? '';
+    this.location = init?.location ?? '';
+    this.experienceMin = init?.experienceMin ?? 0;
+    this.experienceMax = init?.experienceMax ?? 0;
+    this.salaryMin = init?.salaryMin;
+    this.salaryMax = init?.salaryMax;
+    this.openings = init?.openings ?? 1;
+    this.responsibilities = init?.responsibilities;
+    this.requiredSkills = init?.requiredSkills;
+    this.preferredSkills = init?.preferredSkills;
+    this.qualifications = init?.qualifications;
+    this.benefits = init?.benefits;
+    this.status = init?.status ?? 'draft';
+    this.expiryDate = init?.expiryDate ? new Date(init.expiryDate) : undefined;
+    this.createdBy = init?.createdBy ?? 0;
+    this.createdAt = init?.createdAt ? new Date(init.createdAt) : new Date();
+    this.updatedAt = init?.updatedAt ? new Date(init.updatedAt) : undefined;
+
+    this.company = init?.company;
+    this.creator = init?.creator;
+  }
+}

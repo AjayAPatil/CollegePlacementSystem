@@ -29,7 +29,7 @@ body {
   // Angular Material's system-level CSS variables. Learn more about these
   // variables at https://material.angular.dev/guide/system-variables
   background-color: var(--mat-sys-surface);
-  
+
   //background-color: #a1a1a163;
   color: var(--mat-sys-on-surface);
   font: var(--mat-sys-body-medium);
@@ -44,7 +44,8 @@ body {
   height: calc(100vh - 64px);
 }
 /* You can add global styles to this file, and also import other style files */
-.success-snackbar,.success-snackbar>div {
+.success-snackbar,
+.success-snackbar > div {
   background: #4caf50 !important;
   color: white !important;
 }
@@ -52,11 +53,11 @@ body {
   color: #000000b6 !important;
 }
 
-.error-snackbar,.error-snackbar>div {
+.error-snackbar,
+.error-snackbar > div {
   background: #f44336 !important;
   color: white !important;
 }
-
 
 .grid-2 {
   grid-template-columns: 1fr 1fr;
@@ -89,6 +90,11 @@ body {
   .grid-2 {
     grid-template-columns: 1fr;
   }
+  .grid-span-2,
+  .grid-span-3,
+  .grid-span-4 {
+    grid-column: span 1;
+  }
 }
 
 .upload-box {
@@ -114,4 +120,22 @@ body {
   gap: 8px;
   font-weight: 500;
   color: #1976d2;
+}
+
+.page-title-topbar {
+  position: fixed;
+  width: 100%;
+  z-index: 1;
+  border-bottom: 2px solid #3f51b5;
+
+  .page-title-topbar-spacer {
+    flex: 1 1 auto;
+  }
+  button {
+    position: sticky !important;
+    right: 5px !important;
+  }
+}
+.page-container {
+  padding-top: 64px;
 }

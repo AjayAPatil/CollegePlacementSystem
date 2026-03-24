@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments';
-import { CompanyModel, ResponseModel, StudentModel, UserModel } from '../../../shared';
+import { CompanyModel, JobModel, ResponseModel, StudentModel, UserModel } from '../../../shared';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +15,9 @@ export class CompanyService {
   getStudents() {
     return this.http.get<Array<StudentModel>>(`${this.apiUrl}/student`);
   }
+  getJobs() {
+    return this.http.get<Array<JobModel>>(`${this.apiUrl}/jobs`);
+  }
 
   getStudentById(studentId: number) {
     return this.http.get<StudentModel>(`${this.apiUrl}/student/${studentId}`);
@@ -25,5 +28,17 @@ export class CompanyService {
   }
   saveCompany(formData: FormData) {
     return this.http.post<ResponseModel>(`${this.apiUrl}/company`, formData);
+  }
+  saveJobs(formData: FormData) {
+    return this.http.post<ResponseModel>(`${this.apiUrl}/jobs`, formData);
+  }
+  updateJob(jobId: number, formData: FormData) {
+    return this.http.put<ResponseModel>(`${this.apiUrl}/jobs/${jobId}`, formData);
+  }
+  updateJobStatus(jobId: number, status: string) {
+    return this.http.patch<ResponseModel>(`${this.apiUrl}/jobs/${jobId}/status`, { status });
+  }
+  deleteJob(jobId: number) {
+    return this.http.delete<ResponseModel>(`${this.apiUrl}/jobs/${jobId}`);
   }
 }

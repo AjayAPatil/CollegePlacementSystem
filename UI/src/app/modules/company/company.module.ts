@@ -7,13 +7,15 @@ import { CompanyDashboardComponent } from './company-dashboard/company-dashboard
 import { SharedModule } from '../../shared';
 import { CompanyStudentsComponent } from './company-students/company-students.component';
 import { CompanyJobsComponent } from './company-jobs/company-jobs.component';
+import { CompanyJobModifyComponent } from './company-jobs/company-jobs-modify/company-jobs-modify.component';
 
 @NgModule({
   declarations: [
     CompanyComponent,
     CompanyDashboardComponent,
     CompanyStudentsComponent,
-    CompanyJobsComponent
+    CompanyJobsComponent,
+    CompanyJobModifyComponent
   ],
   imports: [
     CommonModule,

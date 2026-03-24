@@ -3,16 +3,24 @@ import { RouterModule, Routes } from '@angular/router';
 import { StudentComponent } from './student.component';
 import { StudentDashboardComponent } from './student-dashboard/student-dashboard.component';
 import { StudentProfileComponent } from './student-profile/student-profile.component';
+import { AuthGuard } from '../../core';
 
 const routes: Routes = [
   {
     path: '', component: StudentComponent,
     children: [
 
-      { path: 'dashboard', component: StudentDashboardComponent },
+      {
+        path: 'dashboard',
+        component: StudentDashboardComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['Student'] }
+      },
       {
         path: 'profile',
         component: StudentProfileComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['Student'] }
       }
     ]
   },

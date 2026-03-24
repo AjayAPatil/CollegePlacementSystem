@@ -23,7 +23,7 @@ export class AppComponent {
     this.globalService.showMessage.subscribe(msg => {
       //msgtypes = error, success 
       this.snackBar.open(msg.text, 'Close', {
-        duration: 2000,
+        duration: 3000,
         horizontalPosition: 'center',
         verticalPosition: 'top',
         panelClass: [msg.type + '-snackbar']
