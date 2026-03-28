@@ -14,6 +14,7 @@ import { GlobalService } from '../../../../core';
 })
 export class StudentComponent implements OnInit {
 
+  readonly defaultLoginPassword = 'Pass@123';
   personalForm!: FormGroup;
   academicForm!: FormGroup;
   contactForm!: FormGroup;
@@ -212,7 +213,11 @@ export class StudentComponent implements OnInit {
     this.authService.upsertUser(formData).subscribe({
       next: (response) => {
         console.log('User registered successfully', response);
-        this.globalService.showMessage.emit({ text: 'User registered successfully', type: 'success' })
+        const username = this.contactForm.value.email;
+        window.alert(
+          `User registered successfully.\n\nUsername: ${username}\nDefault Password: ${this.defaultLoginPassword}\n\nRemember this password and login, then go to profile and change password.`
+        );
+        this.globalService.showMessage.emit({ text: 'User registered successfully', type: 'success' });
         this.router.navigate(['/login']);
       },
       error: (error) => {
