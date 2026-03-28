@@ -1,0 +1,245 @@
+<div class="profile-page">
+  <div class="page-header">
+    <div>
+      <h1>My Profile</h1>
+      <p>Update your account details here. Username and email stay locked.</p>
+    </div>
+  </div>
+
+  @if (isLoading) {
+    <mat-card class="profile-card">
+      <p>Loading profile...</p>
+    </mat-card>
+  } @else {
+    <div class="profile-grid">
+      <mat-card class="profile-card">
+        <h2>Profile Details</h2>
+
+        <form [formGroup]="profileForm" class="profile-form">
+          <div class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>Username</mat-label>
+              <input matInput formControlName="userName" readonly>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput formControlName="email" readonly>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Mobile Number</mat-label>
+              <input matInput formControlName="mobileNo">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Pin Code</mat-label>
+              <input matInput type="number" formControlName="pinCode">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Street Address</mat-label>
+              <textarea matInput rows="3" formControlName="streetAddress"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>City</mat-label>
+              <input matInput formControlName="city">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>District</mat-label>
+              <input matInput formControlName="district">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>State</mat-label>
+              <input matInput formControlName="state">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Country</mat-label>
+              <input matInput formControlName="country">
+            </mat-form-field>
+          </div>
+
+          @if (isStudent) {
+            <div formGroupName="student" class="role-section">
+              <h3>Student Details</h3>
+
+              <div class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>First Name</mat-label>
+                  <input matInput formControlName="firstName">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Middle Name</mat-label>
+                  <input matInput formControlName="middleName">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Last Name</mat-label>
+                  <input matInput formControlName="lastName">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Date Of Birth</mat-label>
+                  <input matInput type="date" formControlName="dateOfBirth">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Nationality</mat-label>
+                  <input matInput formControlName="nationality">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Gender</mat-label>
+                  <input matInput formControlName="gender">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Blood Group</mat-label>
+                  <input matInput formControlName="bloodGroup">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Enrollment No</mat-label>
+                  <input matInput formControlName="enrollmentNo">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Department</mat-label>
+                  <input matInput formControlName="department">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Passing Year</mat-label>
+                  <input matInput type="number" formControlName="passingYear">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>CGPA</mat-label>
+                  <input matInput type="number" step="0.01" max="99.99" formControlName="cgpa">
+                  <span matSuffix>%</span>
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Skills</mat-label>
+                  <textarea matInput rows="3" formControlName="skills"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+          }
+
+          @if (isCompany) {
+            <div formGroupName="company" class="role-section">
+              <h3>Company Details</h3>
+
+              <div class="form-grid">
+                <mat-form-field appearance="outline">
+                  <mat-label>Company Name</mat-label>
+                  <input matInput formControlName="companyName">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Website</mat-label>
+                  <input matInput formControlName="website">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Industry</mat-label>
+                  <input matInput formControlName="industry">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Location</mat-label>
+                  <input matInput formControlName="location">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>HR Name</mat-label>
+                  <input matInput formControlName="hrName">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Contact Phone</mat-label>
+                  <input matInput formControlName="contactPhone">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Founded Year</mat-label>
+                  <input matInput type="number" formControlName="foundedYear">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline">
+                  <mat-label>Company Size</mat-label>
+                  <input matInput type="number" formControlName="companySize">
+                </mat-form-field>
+
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>Description</mat-label>
+                  <textarea matInput rows="4" formControlName="description"></textarea>
+                </mat-form-field>
+              </div>
+            </div>
+          }
+
+          <div class="actions">
+            <button mat-raised-button color="primary" type="button" (click)="saveProfile()" [disabled]="isSavingProfile">
+              {{ isSavingProfile ? 'Saving...' : 'Save Profile' }}
+            </button>
+          </div>
+        </form>
+      </mat-card>
+
+      <mat-card class="password-card">
+        <h2>Update Password</h2>
+        <p>Use your current password and confirm the new one before saving.</p>
+
+        <form [formGroup]="passwordForm" class="password-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Old Password</mat-label>
+            <input matInput type="password" formControlName="oldPassword">
+            @if (oldPasswordControl?.touched && oldPasswordControl?.hasError('required')) {
+              <mat-error>Old password is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>New Password</mat-label>
+            <input matInput type="password" formControlName="newPassword">
+            @if (newPasswordControl?.touched && newPasswordControl?.hasError('required')) {
+              <mat-error>New password is required.</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Verify New Password</mat-label>
+            <input matInput type="password" formControlName="verifyNewPassword">
+            @if (verifyNewPasswordControl?.touched && verifyNewPasswordControl?.hasError('required')) {
+              <mat-error>Verify new password is required.</mat-error>
+            }
+            @if (passwordMismatch) {
+              <mat-error>New password and verify password must match.</mat-error>
+            }
+          </mat-form-field>
+
+          @if (passwordErrorMessage) {
+            <div class="password-message error">{{ passwordErrorMessage }}</div>
+          }
+
+          @if (passwordSuccessMessage) {
+            <div class="password-message success">{{ passwordSuccessMessage }}</div>
+          }
+
+          <div class="actions">
+            <button mat-raised-button color="accent" type="button" (click)="updatePassword()" [disabled]="isSavingPassword">
+              {{ isSavingPassword ? 'Updating...' : 'Update Password' }}
+            </button>
+          </div>
+        </form>
+      </mat-card>
+    </div>
+  }
+</div>

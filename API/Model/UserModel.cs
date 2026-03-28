@@ -33,4 +33,12 @@
         public IFormFile? ProfilePhoto { get; set; }
         public string? Data { get; set; }
     }
+
+    public class ChangePasswordRequest
+    {
+        public long UserId { get; set; }
+        public string OldPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
+        public string VerifyNewPassword { get; set; } = string.Empty;
+    }
 }

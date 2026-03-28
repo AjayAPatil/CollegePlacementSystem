@@ -18,4 +18,16 @@ export class AuthService {
   login(data: any) {
     return this.http.post<any>(`${this.apiUrl}/auth`, data);
   }
+
+  getProfile(userId: number) {
+    return this.http.get<any>(`${this.apiUrl}/user/profile/${userId}`);
+  }
+
+  updateProfile(data: any) {
+    return this.http.put<any>(`${this.apiUrl}/user/profile`, data);
+  }
+
+  changePassword(data: { userId: number; oldPassword: string; newPassword: string; verifyNewPassword: string; }) {
+    return this.http.put<any>(`${this.apiUrl}/user/change-password`, data);
+  }
 }

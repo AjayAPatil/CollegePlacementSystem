@@ -35,6 +35,39 @@ namespace API.Controllers
             return user == null ? (ActionResult<UserModel>)NotFound() : (ActionResult<UserModel>)Ok(user);
         }
 
+        [HttpGet("profile/{userId}")]
+        public async Task<ActionResult<ResponseModel>> GetProfile(long userId)
+        {
+            try
+            {
+                UserModel? user = await GetUserWithDetails(userId);
+                if (user == null)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "User not found."
+                    });
+                }
+
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Success,
+                    Message = "Profile fetched successfully.",
+                    Data = user
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Failure,
+                    Message = $"Error - {ex.Message}",
+                    Data = ex
+                });
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult> Post([FromForm] UserCreateDTO reqestData)
         {
@@ -194,6 +227,235 @@ values (@varUserId, @CompanyName, @Industry, @CompanySize, @Website, @Descriptio
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPut("profile")]
+        public async Task<ActionResult<ResponseModel>> UpdateProfile([FromBody] UserModel request)
+        {
+            try
+            {
+                if (request == null || request.UserId <= 0)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "Invalid user data."
+                    });
+                }
+
+                UserModel? existingUser = await GetUserWithDetails(request.UserId);
+                if (existingUser == null || existingUser.IsDeleted)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "User not found."
+                    });
+                }
+
+                request.UserName = existingUser.UserName;
+                request.Email = existingUser.Email;
+                request.PasswordHash = existingUser.PasswordHash;
+                request.Role = existingUser.Role;
+                request.Status = existingUser.Status;
+                request.ProfileImagePath = existingUser.ProfileImagePath;
+                request.CreatedAt = existingUser.CreatedAt;
+                request.IsDeleted = existingUser.IsDeleted;
+                request.UpdatedAt = DateTime.UtcNow;
+
+                string userSql = @"
+UPDATE Users
+SET MobileNo = @MobileNo,
+    StreetAddress = @StreetAddress,
+    City = @City,
+    District = @District,
+    State = @State,
+    Country = @Country,
+    PinCode = @PinCode,
+    UpdatedAt = @UpdatedAt
+WHERE UserId = @UserId";
+                _ = await _sqlQueryHelper.ExecuteAsync(userSql, request);
+
+                if (request.Role == UserRole.Student && request.Student != null)
+                {
+                    request.Student.UserId = request.UserId;
+                    request.Student.ResumeFilePath = existingUser.Student?.ResumeFilePath;
+                    request.Student.CreatedAt = existingUser.Student?.CreatedAt ?? request.Student.CreatedAt;
+
+                    string studentSql = @"
+UPDATE Students
+SET FirstName = @FirstName,
+    MiddleName = @MiddleName,
+    LastName = @LastName,
+    DateOfBirth = @DateOfBirth,
+    Nationality = @Nationality,
+    Gender = @Gender,
+    BloodGroup = @BloodGroup,
+    EnrollmentNo = @EnrollmentNo,
+    Department = @Department,
+    PassingYear = @PassingYear,
+    CGPA = @CGPA,
+    Skills = @Skills
+WHERE UserId = @UserId";
+                    _ = await _sqlQueryHelper.ExecuteAsync(studentSql, request.Student);
+                }
+                else if (request.Role == UserRole.Company && request.Company != null)
+                {
+                    request.Company.UserId = request.UserId;
+                    request.Company.CreatedAt = existingUser.Company?.CreatedAt ?? request.Company.CreatedAt;
+                    request.Company.LogoUrl = existingUser.Company?.LogoUrl;
+                    request.Company.ContactEmail = existingUser.Email;
+
+                    string companySql = @"
+UPDATE Companies
+SET CompanyName = @CompanyName,
+    Website = @Website,
+    Description = @Description,
+    Industry = @Industry,
+    Location = @Location,
+    HRName = @HRName,
+    ContactEmail = @ContactEmail,
+    ContactPhone = @ContactPhone,
+    FoundedYear = @FoundedYear,
+    CompanySize = @CompanySize
+WHERE UserId = @UserId";
+                    _ = await _sqlQueryHelper.ExecuteAsync(companySql, request.Company);
+                }
+
+                UserModel? updatedUser = await GetUserWithDetails(request.UserId);
+
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Success,
+                    Message = "Profile updated successfully.",
+                    Data = updatedUser
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Failure,
+                    Message = $"Error - {ex.Message}",
+                    Data = ex
+                });
+            }
+        }
+
+        [HttpPut("change-password")]
+        public async Task<ActionResult<ResponseModel>> ChangePassword([FromBody] ChangePasswordRequest request)
+        {
+            try
+            {
+                if (request == null || request.UserId <= 0)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "Invalid password request."
+                    });
+                }
+
+                if (string.IsNullOrWhiteSpace(request.OldPassword) ||
+                    string.IsNullOrWhiteSpace(request.NewPassword) ||
+                    string.IsNullOrWhiteSpace(request.VerifyNewPassword))
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "All password fields are required."
+                    });
+                }
+
+                if (request.NewPassword != request.VerifyNewPassword)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "New password and verify password must match."
+                    });
+                }
+
+                UserModel? user = await _sqlQueryHelper.GetSingleAsync<UserModel>(
+                    "SELECT TOP 1 * FROM Users WITH(NOLOCK) WHERE UserId = @UserId",
+                    new { request.UserId });
+
+                if (user == null || user.IsDeleted)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "User not found."
+                    });
+                }
+
+                if (user.PasswordHash != request.OldPassword)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "Old password is incorrect."
+                    });
+                }
+
+                if (request.OldPassword == request.NewPassword)
+                {
+                    return Ok(new ResponseModel
+                    {
+                        Status = ResponseStatus.Failure,
+                        Message = "New password must be different from old password."
+                    });
+                }
+
+                _ = await _sqlQueryHelper.ExecuteAsync(
+                    @"UPDATE Users SET PasswordHash = @NewPassword, UpdatedAt = @UpdatedAt WHERE UserId = @UserId",
+                    new
+                    {
+                        request.UserId,
+                        request.NewPassword,
+                        UpdatedAt = DateTime.UtcNow
+                    });
+
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Success,
+                    Message = "Password updated successfully."
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Failure,
+                    Message = $"Error - {ex.Message}",
+                    Data = ex
+                });
+            }
+        }
+
+        private async Task<UserModel?> GetUserWithDetails(long userId)
+        {
+            string sql = "SELECT TOP 1 * FROM Users WITH(NOLOCK) WHERE UserId = @UserId";
+            UserModel? user = await _sqlQueryHelper.GetSingleAsync<UserModel>(sql, new { UserId = userId });
+            if (user == null)
+            {
+                return null;
+            }
+
+            if (user.Role == UserRole.Student)
+            {
+                user.Student = await _sqlQueryHelper.GetSingleAsync<StudentModel>(
+                    "SELECT TOP 1 * FROM Students WITH(NOLOCK) WHERE UserId = @UserId",
+                    new { UserId = userId });
+            }
+            else if (user.Role == UserRole.Company)
+            {
+                user.Company = await _sqlQueryHelper.GetSingleAsync<CompanyModel>(
+                    "SELECT TOP 1 * FROM Companies WITH(NOLOCK) WHERE UserId = @UserId",
+                    new { UserId = userId });
+            }
+
+            return user;
         }
     }
 }
