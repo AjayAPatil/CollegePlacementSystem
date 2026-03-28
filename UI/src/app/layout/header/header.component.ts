@@ -40,6 +40,18 @@ export class HeaderComponent {
     }
   }
 
+  navigateToJobs() {
+    if (this.userInfo.role === 'Student') {
+      this.router.navigate(['/student/jobs']);
+    } else if (this.userInfo.role === 'Company') {
+      this.router.navigate(['/company/jobs']);
+    } else if (this.userInfo.role === 'Admin') {
+      this.router.navigate(['/admin/jobs']);
+    } else {
+      this.router.navigate(['/']);
+    }
+  }
+
   logout() {
     this.globalService.clearUserInfo();
     this.router.navigate(['/']);

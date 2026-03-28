@@ -1,0 +1,55 @@
+<section class="jobs-feed-shell">
+  <header class="feed-header">
+    <div>
+      <p class="feed-eyebrow">Jobs Feed</p>
+      <h2>Latest openings for you</h2>
+      <span>{{ totalCount }} jobs available</span>
+    </div>
+  </header>
+
+  <div class="feed-container" (scroll)="onFeedScroll($event)">
+    <mat-card class="job-card" *ngFor="let job of jobs; trackBy: trackByJobId">
+      <mat-card-header>
+        <div mat-card-avatar class="job-avatar">
+          {{ (job.companyName || 'J').charAt(0) }}
+        </div>
+        <mat-card-title>{{ job.jobTitle }}</mat-card-title>
+        <mat-card-subtitle>
+          {{ job.companyName }} | {{ job.location }}
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="meta-row">
+          <span>{{ job.jobType }}</span>
+          <span>{{ job.workMode }}</span>
+          <span>{{ job.experienceMin }}-{{ job.experienceMax }} yrs</span>
+          <span>{{ job.openings }} openings</span>
+        </div>
+
+        <p class="job-copy" *ngIf="job.qualifications">{{ job.qualifications }}</p>
+        <p class="job-copy muted" *ngIf="job.benefits">{{ job.benefits }}</p>
+      </mat-card-content>
+
+      <mat-card-actions>
+        <button mat-flat-button color="primary">View Details</button>
+      </mat-card-actions>
+    </mat-card>
+
+    <div class="feed-state" *ngIf="initialLoading">
+      <p>Loading jobs...</p>
+    </div>
+
+    <div class="feed-state" *ngIf="loading && !initialLoading">
+      <p>Loading more jobs...</p>
+    </div>
+
+    <div class="feed-state" *ngIf="!loading && !hasMore && jobs.length > 0">
+      <p>You're all caught up.</p>
+    </div>
+
+    <div class="feed-state" *ngIf="!loading && !initialLoading && jobs.length === 0">
+      <p>No published jobs are available right now.</p>
+    </div>
+  </div>
+</section>

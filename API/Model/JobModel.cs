@@ -50,4 +50,11 @@ namespace API.Model
         public int Openings { get; set; }
         public DateTime? ExpiryDate { get; set; }
     }
+
+    public class JobViewModel : JobModel
+    {
+        public string CompanyName { get; set; } = string.Empty;
+        public string? LogoUrl { get; set; }
+        public string CreatorName { get; set; } = string.Empty;
+    }
 }

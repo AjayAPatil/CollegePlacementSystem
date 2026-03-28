@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { ReactiveFormsModule } from '@angular/forms';
 
@@ -23,6 +24,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatStepperModule } from '@angular/material/stepper';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 // ✅ Datepicker (CLEAN)
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -40,6 +42,7 @@ import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialo
   imports: [
     CommonModule,
     RouterModule,
+    ScrollingModule,
 
     // Material
     MatToolbarModule,
@@ -60,6 +63,7 @@ import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialo
     MatCheckboxModule,
     MatRadioModule,
     MatStepperModule,
+    MatTooltipModule,
 
     // Forms
     ReactiveFormsModule,
@@ -75,6 +79,7 @@ import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialo
   ],
   exports: [
     RouterModule,
+    ScrollingModule,
 
     // Material
     MatToolbarModule,
@@ -95,6 +100,7 @@ import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialo
     MatCheckboxModule,
     MatRadioModule,
     MatStepperModule,
+    MatTooltipModule,
 
     // Forms
     ReactiveFormsModule,

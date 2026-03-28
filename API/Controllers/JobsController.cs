@@ -38,6 +38,69 @@ namespace API.Controllers
             return Ok(jobList);
         }
 
+        [HttpGet("{page}/{pageSize}")]
+        public async Task<ActionResult<ResponseModel>> Get(int page = 1, int pageSize = 10)
+        {
+            try
+            {
+                page = page < 1 ? 1 : page;
+                pageSize = pageSize < 1 ? 10 : Math.Min(pageSize, 50);
+                int offset = (page - 1) * pageSize;
+
+                const string countSql = @"
+SELECT COUNT(1)
+FROM Jobs j
+WHERE j.Status = 'published'";
+
+                string sql = @"
+        SELECT 
+            j.*,
+
+            c.CompanyName,
+            c.LogoUrl,
+
+            u.UserName AS CreatorName
+
+        FROM Jobs j
+        LEFT JOIN Companies c ON j.CompanyId = c.Id
+        LEFT JOIN Users u ON j.CreatedBy = u.UserId
+        WHERE j.Status = 'published'
+
+        ORDER BY j.CreatedAt DESC
+        OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                int totalCount = await _sqlQueryHelper.GetSingleAsync<int>(countSql);
+                var jobs = await _sqlQueryHelper.GetListAsync<JobViewModel>(
+                    sql,
+                    new { Offset = offset, PageSize = pageSize });
+
+                var pagedResult = new PagedResult<JobViewModel>
+                {
+                    Items = jobs,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalCount = totalCount,
+                    HasMore = offset + jobs.Count < totalCount
+                };
+
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Success,
+                    Message = "Data Retrived!",
+                    Data = pagedResult
+                });
+            }
+            catch(Exception ex)
+            {
+                return Ok(new ResponseModel
+                {
+                    Status = ResponseStatus.Failure,
+                    Message = ex.Message,
+                    Data = new PagedResult<JobViewModel>()
+                });
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult<ResponseModel>> Post([FromForm] JobCreateDTO requestData)
         {
@@ -62,6 +125,7 @@ namespace API.Controllers
 
                 job.Status = NormalizeStatus(job.Status);
                 job.CreatedAt = DateTime.UtcNow;
+                
                 job.UpdatedAt = DateTime.UtcNow;
 
                 string sql = @"

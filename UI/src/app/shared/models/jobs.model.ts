@@ -57,3 +57,28 @@ export class JobModel {
     this.creator = init?.creator;
   }
 }
+
+export interface JobFeedItem {
+  jobId: number;
+  companyId?: number;
+  jobTitle: string;
+  companyName: string;
+  logoUrl?: string;
+  creatorName: string;
+  location: string;
+  qualifications?: string;
+  jobType: string;
+  workMode: string;
+  experienceMin: number;
+  experienceMax: number;
+  salaryMin?: number;
+  salaryMax?: number;
+  openings: number;
+  benefits?: string;
+  responsibilities?: string;
+  requiredSkills?: string;
+  preferredSkills?: string;
+  status?: string;
+  createdAt: Date | string;
+  expiryDate?: Date | string;
+}
