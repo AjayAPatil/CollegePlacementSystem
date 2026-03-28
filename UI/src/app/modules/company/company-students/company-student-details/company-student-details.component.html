@@ -1,0 +1,148 @@
+<section class="applicant-details-page" *ngIf="applicationDetails as application">
+  <header class="hero-card">
+    <div class="hero-copy">
+      <button mat-stroked-button type="button" (click)="goBack()">Back to Applicants</button>
+      <p class="eyebrow">Applicant Details</p>
+      <h1>{{ application.studentName }}</h1>
+      <p class="hero-meta">{{ application.jobTitle }} | {{ application.department || 'Department not provided' }}</p>
+    </div>
+
+    <div class="hero-status">
+      <span class="status-badge" [ngClass]="'status-' + application.status">{{ getStatusLabel(application.status)
+        }}</span>
+      <p>Applied {{ application.appliedAt | date:'dd/MM/yyyy hh:mm a' }}</p>
+    </div>
+  </header>
+
+  <div class="content-grid">
+    <mat-card class="content-card">
+      <mat-card-header>
+        <mat-card-title>Student Profile</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="detail-list">
+          <div><strong>Email:</strong> {{ application.studentEmail }}</div>
+          <div><strong>Phone:</strong> {{ application.studentPhone || 'Not provided' }}</div>
+          <div><strong>Department:</strong> {{ application.department || 'Not provided' }}</div>
+          <div><strong>Passing Year:</strong> {{ application.passingYear || 'Not provided' }}</div>
+          <div><strong>CGPA:</strong> {{ application.cgpa || 'Not provided' }}</div>
+          <div><strong>Resume:</strong> {{ application.resumeUrl || application.resumeFilePath || 'Not uploaded' }}
+          </div>
+        </div>
+
+        <div class="detail-block" *ngIf="application.skills">
+          <h3>Skills</h3>
+          <p>{{ application.skills }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="content-card">
+      <mat-card-header>
+        <mat-card-title>Applied Position</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chip-row">
+          <span>{{ application.jobTitle }}</span>
+          <span>{{ application.jobType }}</span>
+          <span>{{ application.workMode }}</span>
+          <span>{{ application.location }}</span>
+        </div>
+
+        <div class="detail-block" *ngIf="application.qualifications">
+          <h3>Qualifications</h3>
+          <p>{{ application.qualifications }}</p>
+        </div>
+
+        <div class="detail-block" *ngIf="application.requiredSkills">
+          <h3>Required Skills</h3>
+          <p>{{ application.requiredSkills }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="content-card">
+      <mat-card-header>
+        <mat-card-title>Schedule Interview</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="interviewForm" class="interview-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Interview Date</mat-label>
+            <input matInput [min]="minInterviewDate" [matDatepicker]="interviewDatePicker" formControlName="interviewDate">
+            <mat-datepicker-toggle matSuffix [for]="interviewDatePicker"></mat-datepicker-toggle>
+            <mat-datepicker #interviewDatePicker></mat-datepicker>
+            <mat-error *ngIf="interviewForm.controls.interviewDate.invalid">Interview date is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Interview Time</mat-label>
+            <input matInput type="time" formControlName="interviewTime">
+            <mat-error *ngIf="interviewForm.controls.interviewTime.invalid">Interview time is required</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Interview Mode</mat-label>
+            <mat-select formControlName="interviewMode">
+              <mat-option value="Online">Online</mat-option>
+              <mat-option value="Offline">Offline</mat-option>
+              <mat-option value="Hybrid">Hybrid</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Interview Location / Link</mat-label>
+            <input matInput type="text" formControlName="interviewLocation">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Notes</mat-label>
+            <textarea matInput rows="4" formControlName="interviewNotes"></textarea>
+          </mat-form-field>
+
+          <div class="action-row">
+            <button mat-flat-button color="primary" type="button" (click)="scheduleInterview()"
+              [disabled]="savingInterview">
+              {{ savingInterview ? 'Saving...' : 'Schedule Interview' }}
+            </button>
+          </div>
+        </form>
+
+        <p class="helper-text" *ngIf="application.interviewScheduledAt">
+          Current interview: {{ application.interviewScheduledAt | date:'dd/MM/yyyy hh:mm a' }}
+          <span *ngIf="application.interviewMode"> | {{ application.interviewMode }}</span>
+        </p>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="content-card">
+      <mat-card-header>
+        <mat-card-title>Final Decision</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p class="helper-text">
+          Final decision is enabled only after the scheduled interview time has passed.
+        </p>
+
+        <div class="action-row">
+          <button mat-flat-button color="primary" type="button" (click)="updateDecision('accepted')"
+            [disabled]="!canTakeFinalDecision() || updatingDecision || hasFinalDecision()">
+            Accept
+          </button>
+          <button mat-stroked-button color="warn" type="button" (click)="updateDecision('rejected')"
+            [disabled]="!canTakeFinalDecision() || updatingDecision || hasFinalDecision()">
+            Reject
+          </button>
+        </div>
+
+        <p class="helper-text" *ngIf="hasFinalDecision() && application.decisionAt">
+          Decision made on {{ application.decisionAt | date:'dd/MM/yyyy hh:mm a' }}.
+        </p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>
+
+<section class="applicant-details-page loading-shell" *ngIf="loading">
+  <p>Loading applicant details...</p>
+</section>

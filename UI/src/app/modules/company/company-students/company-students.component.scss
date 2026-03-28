@@ -1,38 +1,51 @@
-.dashboard-container {
-  padding: 20px;
-}
-
-.stats-grid {
+.applicants-page {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 20px;
-  margin-bottom: 20px;
-}
-
-.stat-card {
-  text-align: center;
 }
 
 .table-card {
-  padding: 15px;
+  overflow: hidden;
 }
 
-.status-shortlisted {
-  color: green;
-  font-weight: bold;
+.demo-table {
+  width: 100%;
 }
-.status-rejected {
-  color: red;
-  font-weight: bold;
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #eef2ff;
+  color: #3730a3;
 }
+
 .status-applied {
-  color: orange;
-  font-weight: bold;
+  background: #fff7ed;
+  color: #c2410c;
 }
-.charts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-  margin-bottom: 20px;
+
+.status-interview_scheduled {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.status-accepted {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.status-rejected {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.empty-state,
+.loading-state {
+  padding: 24px 8px;
+  text-align: center;
+  color: #64748b;
 }

@@ -247,6 +247,215 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
             }
         }
 
+        [HttpGet("applications/company/{companyId:long}")]
+        public async Task<ActionResult<ResponseModel>> GetCompanyApplications(long companyId)
+        {
+            try
+            {
+                await EnsureJobApplicationsTableAsync();
+
+                if (companyId <= 0)
+                {
+                    return Failure("Company is required.");
+                }
+
+                const string sql = @"
+SELECT
+    ja.*,
+    j.JobTitle
+FROM JobApplications ja
+INNER JOIN Jobs j ON ja.JobId = j.JobId
+WHERE ja.CompanyId = @CompanyId
+ORDER BY ja.AppliedAt DESC";
+
+                List<CompanyJobApplicationListItemModel> applications =
+                    await _sqlQueryHelper.GetListAsync<CompanyJobApplicationListItemModel>(sql, new { CompanyId = companyId });
+
+                return Success("Applications retrieved successfully.", applications);
+            }
+            catch (Exception ex)
+            {
+                return Failure(ex.Message, ex);
+            }
+        }
+
+        [HttpGet("applications/{applicationId:long}")]
+        public async Task<ActionResult<ResponseModel>> GetApplicationDetails(long applicationId, [FromQuery] long companyId)
+        {
+            try
+            {
+                await EnsureJobApplicationsTableAsync();
+
+                if (companyId <= 0)
+                {
+                    return Failure("Company is required.");
+                }
+
+                const string sql = @"
+SELECT
+    ja.*,
+    j.JobTitle,
+    j.JobType,
+    j.WorkMode,
+    j.Location,
+    j.Qualifications,
+    j.RequiredSkills,
+    s.FirstName AS StudentFirstName,
+    s.MiddleName AS StudentMiddleName,
+    s.LastName AS StudentLastName,
+    s.Department,
+    s.PassingYear,
+    s.CGPA,
+    s.Skills,
+    s.ResumeFilePath AS ResumeUrl
+FROM JobApplications ja
+INNER JOIN Jobs j ON ja.JobId = j.JobId
+INNER JOIN Students s ON ja.StudentId = s.Id
+WHERE ja.ApplicationId = @ApplicationId AND ja.CompanyId = @CompanyId";
+
+                CompanyJobApplicationDetailModel? application =
+                    await _sqlQueryHelper.GetSingleAsync<CompanyJobApplicationDetailModel>(
+                        sql,
+                        new { ApplicationId = applicationId, CompanyId = companyId });
+
+                if (application == null)
+                {
+                    return Failure("Application not found.");
+                }
+
+                return Success("Application details retrieved successfully.", application);
+            }
+            catch (Exception ex)
+            {
+                return Failure(ex.Message, ex);
+            }
+        }
+
+        [HttpPatch("applications/{applicationId:long}/schedule-interview")]
+        public async Task<ActionResult<ResponseModel>> ScheduleInterview(long applicationId, [FromBody] ScheduleInterviewRequestModel requestData)
+        {
+            try
+            {
+                await EnsureJobApplicationsTableAsync();
+
+                if (requestData == null || requestData.CompanyId <= 0)
+                {
+                    return Failure("Company is required.");
+                }
+
+                if (requestData.InterviewScheduledAt == default)
+                {
+                    return Failure("Interview date and time are required.");
+                }
+
+                JobApplicationModel? application = await GetOwnedApplicationAsync(applicationId, requestData.CompanyId);
+                if (application == null)
+                {
+                    return Failure("Application not found.");
+                }
+
+                if (string.Equals(application.Status, "accepted", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(application.Status, "rejected", StringComparison.OrdinalIgnoreCase))
+                {
+                    return Failure("Interview cannot be scheduled after the application is finalized.");
+                }
+
+                int rowsAffected = await _sqlQueryHelper.ExecuteAsync(@"
+UPDATE JobApplications
+SET Status = @Status,
+    InterviewScheduledAt = @InterviewScheduledAt,
+    InterviewMode = @InterviewMode,
+    InterviewLocation = @InterviewLocation,
+    InterviewNotes = @InterviewNotes,
+    UpdatedAt = @UpdatedAt
+WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId", new
+                {
+                    ApplicationId = applicationId,
+                    requestData.CompanyId,
+                    Status = "interview_scheduled",
+                    InterviewScheduledAt = requestData.InterviewScheduledAt,
+                    InterviewMode = requestData.InterviewMode,
+                    InterviewLocation = requestData.InterviewLocation,
+                    InterviewNotes = requestData.InterviewNotes,
+                    UpdatedAt = DateTime.UtcNow
+                });
+
+                if (rowsAffected == 0)
+                {
+                    return Failure("Failed to schedule interview.");
+                }
+
+                CompanyJobApplicationDetailModel? updatedApplication = await GetApplicationDetailAsync(applicationId, requestData.CompanyId);
+                return Success("Interview scheduled successfully.", updatedApplication);
+            }
+            catch (Exception ex)
+            {
+                return Failure(ex.Message, ex);
+            }
+        }
+
+        [HttpPatch("applications/{applicationId:long}/status")]
+        public async Task<ActionResult<ResponseModel>> UpdateApplicationStatus(long applicationId, [FromBody] JobApplicationStatusUpdateModel requestData)
+        {
+            try
+            {
+                await EnsureJobApplicationsTableAsync();
+
+                if (requestData == null || requestData.CompanyId <= 0)
+                {
+                    return Failure("Company is required.");
+                }
+
+                string normalizedStatus = NormalizeApplicationStatus(requestData.Status);
+                if (normalizedStatus != "accepted" && normalizedStatus != "rejected")
+                {
+                    return Failure("Only accepted or rejected are allowed.");
+                }
+
+                JobApplicationModel? application = await GetOwnedApplicationAsync(applicationId, requestData.CompanyId);
+                if (application == null)
+                {
+                    return Failure("Application not found.");
+                }
+
+                if (!application.InterviewScheduledAt.HasValue)
+                {
+                    return Failure("Schedule an interview before updating the final status.");
+                }
+
+                if (application.InterviewScheduledAt.Value > DateTime.UtcNow)
+                {
+                    return Failure("Final decision can only be made after the scheduled interview time.");
+                }
+
+                int rowsAffected = await _sqlQueryHelper.ExecuteAsync(@"
+UPDATE JobApplications
+SET Status = @Status,
+    DecisionAt = @DecisionAt,
+    UpdatedAt = @UpdatedAt
+WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId", new
+                {
+                    ApplicationId = applicationId,
+                    requestData.CompanyId,
+                    Status = normalizedStatus,
+                    DecisionAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                });
+
+                if (rowsAffected == 0)
+                {
+                    return Failure("Failed to update application status.");
+                }
+
+                CompanyJobApplicationDetailModel? updatedApplication = await GetApplicationDetailAsync(applicationId, requestData.CompanyId);
+                return Success("Application status updated successfully.", updatedApplication);
+            }
+            catch (Exception ex)
+            {
+                return Failure(ex.Message, ex);
+            }
+        }
+
         [HttpPost]
         public async Task<ActionResult<ResponseModel>> Post([FromForm] JobCreateDTO requestData)
         {
@@ -564,6 +773,49 @@ WHERE JobId = @JobId", new
             return string.IsNullOrWhiteSpace(status) ? JobStatus.Draft : status.Trim().ToLowerInvariant();
         }
 
+        private static string NormalizeApplicationStatus(string? status)
+        {
+            return string.IsNullOrWhiteSpace(status) ? "applied" : status.Trim().ToLowerInvariant();
+        }
+
+        private async Task<JobApplicationModel?> GetOwnedApplicationAsync(long applicationId, long companyId)
+        {
+            return await _sqlQueryHelper.GetSingleAsync<JobApplicationModel>(
+                @"SELECT TOP 1 *
+FROM JobApplications WITH (NOLOCK)
+WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId",
+                new { ApplicationId = applicationId, CompanyId = companyId });
+        }
+
+        private async Task<CompanyJobApplicationDetailModel?> GetApplicationDetailAsync(long applicationId, long companyId)
+        {
+            const string sql = @"
+SELECT
+    ja.*,
+    j.JobTitle,
+    j.JobType,
+    j.WorkMode,
+    j.Location,
+    j.Qualifications,
+    j.RequiredSkills,
+    s.FirstName AS StudentFirstName,
+    s.MiddleName AS StudentMiddleName,
+    s.LastName AS StudentLastName,
+    s.Department,
+    s.PassingYear,
+    s.CGPA,
+    s.Skills,
+    s.ResumeFilePath AS ResumeUrl
+FROM JobApplications ja
+INNER JOIN Jobs j ON ja.JobId = j.JobId
+INNER JOIN Students s ON ja.StudentId = s.Id
+WHERE ja.ApplicationId = @ApplicationId AND ja.CompanyId = @CompanyId";
+
+            return await _sqlQueryHelper.GetSingleAsync<CompanyJobApplicationDetailModel>(
+                sql,
+                new { ApplicationId = applicationId, CompanyId = companyId });
+        }
+
         private async Task EnsureJobApplicationsTableAsync()
         {
             const string sql = @"
@@ -581,6 +833,11 @@ BEGIN
         ResumeFilePath NVARCHAR(500) NULL,
         Status NVARCHAR(30) NOT NULL DEFAULT 'applied',
         AppliedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        InterviewScheduledAt DATETIME2 NULL,
+        InterviewMode NVARCHAR(100) NULL,
+        InterviewLocation NVARCHAR(300) NULL,
+        InterviewNotes NVARCHAR(MAX) NULL,
+        DecisionAt DATETIME2 NULL,
         UpdatedAt DATETIME2 NULL,
         CONSTRAINT FK_JobApplications_Jobs FOREIGN KEY (JobId) REFERENCES Jobs(JobId) ON DELETE CASCADE,
         CONSTRAINT FK_JobApplications_Companies FOREIGN KEY (CompanyId) REFERENCES Companies(Id) ON DELETE NO ACTION,
@@ -590,6 +847,31 @@ BEGIN
 
     CREATE UNIQUE INDEX IX_JobApplications_JobId_StudentId
     ON JobApplications(JobId, StudentId);
+END
+
+IF COL_LENGTH('dbo.JobApplications', 'InterviewScheduledAt') IS NULL
+BEGIN
+    ALTER TABLE JobApplications ADD InterviewScheduledAt DATETIME2 NULL;
+END
+
+IF COL_LENGTH('dbo.JobApplications', 'InterviewMode') IS NULL
+BEGIN
+    ALTER TABLE JobApplications ADD InterviewMode NVARCHAR(100) NULL;
+END
+
+IF COL_LENGTH('dbo.JobApplications', 'InterviewLocation') IS NULL
+BEGIN
+    ALTER TABLE JobApplications ADD InterviewLocation NVARCHAR(300) NULL;
+END
+
+IF COL_LENGTH('dbo.JobApplications', 'InterviewNotes') IS NULL
+BEGIN
+    ALTER TABLE JobApplications ADD InterviewNotes NVARCHAR(MAX) NULL;
+END
+
+IF COL_LENGTH('dbo.JobApplications', 'DecisionAt') IS NULL
+BEGIN
+    ALTER TABLE JobApplications ADD DecisionAt DATETIME2 NULL;
 END";
 
             await _sqlQueryHelper.ExecuteAsync(sql);

@@ -1,7 +1,17 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments';
-import { CompanyModel, JobModel, ResponseModel, StudentModel, UserModel } from '../../../shared';
+import {
+  CompanyJobApplicationDetail,
+  CompanyJobApplicationListItem,
+  CompanyModel,
+  JobApplicationStatusUpdateRequestModel,
+  JobModel,
+  ResponseModel,
+  ScheduleInterviewRequestModel,
+  StudentModel
+} from '../../../shared';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -21,6 +31,32 @@ export class CompanyService {
 
   getStudentById(studentId: number) {
     return this.http.get<StudentModel>(`${this.apiUrl}/student/${studentId}`);
+  }
+
+  getCompanyApplications(companyId: number): Observable<ResponseModel & { data: CompanyJobApplicationListItem[] }> {
+    return this.http.get<ResponseModel & { data: CompanyJobApplicationListItem[] }>(
+      `${this.apiUrl}/jobs/applications/company/${companyId}`
+    );
+  }
+
+  getApplicationDetails(applicationId: number, companyId: number): Observable<ResponseModel & { data: CompanyJobApplicationDetail }> {
+    return this.http.get<ResponseModel & { data: CompanyJobApplicationDetail }>(
+      `${this.apiUrl}/jobs/applications/${applicationId}?companyId=${companyId}`
+    );
+  }
+
+  scheduleInterview(applicationId: number, requestData: ScheduleInterviewRequestModel): Observable<ResponseModel & { data: CompanyJobApplicationDetail }> {
+    return this.http.patch<ResponseModel & { data: CompanyJobApplicationDetail }>(
+      `${this.apiUrl}/jobs/applications/${applicationId}/schedule-interview`,
+      requestData
+    );
+  }
+
+  updateApplicationStatus(applicationId: number, requestData: JobApplicationStatusUpdateRequestModel): Observable<ResponseModel & { data: CompanyJobApplicationDetail }> {
+    return this.http.patch<ResponseModel & { data: CompanyJobApplicationDetail }>(
+      `${this.apiUrl}/jobs/applications/${applicationId}/status`,
+      requestData
+    );
   }
 
   getCompanies() {

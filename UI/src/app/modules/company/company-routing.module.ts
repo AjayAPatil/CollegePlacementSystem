@@ -4,6 +4,7 @@ import { CompanyComponent } from './company.component';
 import { CompanyDashboardComponent } from './company-dashboard/company-dashboard.component';
 import { CompanyStudentsComponent } from './company-students/company-students.component';
 import { CompanyJobsComponent } from './company-jobs/company-jobs.component';
+import { CompanyStudentDetailsComponent } from './company-students/company-student-details/company-student-details.component';
 import { AuthGuard } from '../../core';
 
 const routes: Routes = [
@@ -18,6 +19,11 @@ const routes: Routes = [
       },
       {
         path: 'students', component: CompanyStudentsComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['Company'] }
+      },
+      {
+        path: 'students/:applicationId', component: CompanyStudentDetailsComponent,
         canActivate: [AuthGuard],
         data: { roles: ['Company'] }
       },

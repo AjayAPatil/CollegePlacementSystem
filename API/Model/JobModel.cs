@@ -85,11 +85,56 @@ namespace API.Model
         public string? ResumeFilePath { get; set; }
         public string Status { get; set; } = "applied";
         public DateTime AppliedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? InterviewScheduledAt { get; set; }
+        public string? InterviewMode { get; set; }
+        public string? InterviewLocation { get; set; }
+        public string? InterviewNotes { get; set; }
+        public DateTime? DecisionAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
+    }
+
+    public class CompanyJobApplicationListItemModel : JobApplicationModel
+    {
+        public string JobTitle { get; set; } = string.Empty;
+    }
+
+    public class CompanyJobApplicationDetailModel : CompanyJobApplicationListItemModel
+    {
+        public string StudentFirstName { get; set; } = string.Empty;
+        public string StudentMiddleName { get; set; } = string.Empty;
+        public string StudentLastName { get; set; } = string.Empty;
+        public string? Department { get; set; }
+        public int PassingYear { get; set; }
+        public decimal CGPA { get; set; }
+        public string? Skills { get; set; }
+        public string? ResumeUrl { get; set; }
+        public string JobType { get; set; } = string.Empty;
+        public string WorkMode { get; set; } = string.Empty;
+        public string Location { get; set; } = string.Empty;
+        public string? Qualifications { get; set; }
+        public string? RequiredSkills { get; set; }
     }
 
     public class JobApplyRequestModel
     {
         public long StudentId { get; set; }
+    }
+
+    public class CompanyJobApplicationQueryModel
+    {
+        public long CompanyId { get; set; }
+    }
+
+    public class ScheduleInterviewRequestModel : CompanyJobApplicationQueryModel
+    {
+        public DateTime InterviewScheduledAt { get; set; }
+        public string? InterviewMode { get; set; }
+        public string? InterviewLocation { get; set; }
+        public string? InterviewNotes { get; set; }
+    }
+
+    public class JobApplicationStatusUpdateModel : CompanyJobApplicationQueryModel
+    {
+        public string Status { get; set; } = string.Empty;
     }
 }

@@ -8,12 +8,14 @@ import { SharedModule } from '../../shared';
 import { CompanyStudentsComponent } from './company-students/company-students.component';
 import { CompanyJobsComponent } from './company-jobs/company-jobs.component';
 import { CompanyJobModifyComponent } from './company-jobs/company-jobs-modify/company-jobs-modify.component';
+import { CompanyStudentDetailsComponent } from './company-students/company-student-details/company-student-details.component';
 
 @NgModule({
   declarations: [
     CompanyComponent,
     CompanyDashboardComponent,
     CompanyStudentsComponent,
+    CompanyStudentDetailsComponent,
     CompanyJobsComponent,
     CompanyJobModifyComponent
   ],

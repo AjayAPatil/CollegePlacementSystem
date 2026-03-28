@@ -103,3 +103,53 @@ export interface JobDetailModel extends JobFeedItem {
 export interface JobApplyRequestModel {
   studentId: number;
 }
+
+export interface CompanyJobApplicationListItem {
+  applicationId: number;
+  jobId: number;
+  companyId: number;
+  studentId: number;
+  studentUserId: number;
+  studentName: string;
+  studentEmail: string;
+  studentPhone?: string;
+  resumeFilePath?: string;
+  status: string;
+  appliedAt: Date | string;
+  interviewScheduledAt?: Date | string;
+  interviewMode?: string;
+  interviewLocation?: string;
+  interviewNotes?: string;
+  decisionAt?: Date | string;
+  updatedAt?: Date | string;
+  jobTitle: string;
+}
+
+export interface CompanyJobApplicationDetail extends CompanyJobApplicationListItem {
+  studentFirstName: string;
+  studentMiddleName?: string;
+  studentLastName: string;
+  department?: string;
+  passingYear: number;
+  cgpa: number;
+  skills?: string;
+  resumeUrl?: string;
+  jobType: string;
+  workMode: string;
+  location: string;
+  qualifications?: string;
+  requiredSkills?: string;
+}
+
+export interface ScheduleInterviewRequestModel {
+  companyId: number;
+  interviewScheduledAt: string;
+  interviewMode?: string;
+  interviewLocation?: string;
+  interviewNotes?: string;
+}
+
+export interface JobApplicationStatusUpdateRequestModel {
+  companyId: number;
+  status: string;
+}
