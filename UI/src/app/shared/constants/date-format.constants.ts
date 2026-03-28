@@ -9,3 +9,15 @@ export const DATE_FORMATS = {
     monthYearA11yLabel: 'MMMM YYYY',
   },
 };
+
+export const MY_YEAR_FORMATS = {
+  parse: {
+    dateInput: 'YYYY',
+  },
+  display: {
+    dateInput: 'YYYY',
+    monthYearLabel: 'YYYY',
+    dateA11yLabel: 'YYYY',
+    monthYearA11yLabel: 'YYYY',
+  },
+};

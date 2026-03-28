@@ -20,6 +20,7 @@
         public decimal CGPA { get; set; }
         public string? ResumeFilePath { get; set; }
         public string? Skills { get; set; }
+        public string? SelectedCompanyName { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         // Navigation
         public UserModel? User { get; set; }

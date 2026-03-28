@@ -6,8 +6,8 @@
   </button>
 </mat-toolbar>
 
-@if(activity == 'list') {
-<div>
+<div class="page-container">
+  @if(activity == 'list') {
   <table mat-table [dataSource]="studentDataSource" class="mat-elevation-z8 demo-table">
 
     <ng-container matColumnDef="companyName">
@@ -30,10 +30,8 @@
     <tr mat-header-row *matHeaderRowDef="studentTblColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: studentTblColumns;"></tr>
   </table>
-
-
+  } @else {
+  <app-admin-companies-modify [activity]="activity"
+    (activityChange)="activity = $event; getCompanyList();"></app-admin-companies-modify>
+  }
 </div>
-} @else {
-<app-admin-companies-modify [activity]="activity"
-  (activityChange)="activity = $event; getCompanyList();"></app-admin-companies-modify>
-}

@@ -23,7 +23,9 @@
 
     <!-- Logged In Menu -->
     <button class="topbar-button" mat-button (click)="navigateToDashboard()">Dashboard</button>
+    @if (userInfo.role == 'Student' || userInfo.role == 'Company') {
     <button class="topbar-button" mat-button (click)="navigateToJobs()">Jobs</button>
+    }
 
     <button class="topbar-button" mat-button [matMenuTriggerFor]="menu">
         <span>{{ userInfo.userName }}</span>

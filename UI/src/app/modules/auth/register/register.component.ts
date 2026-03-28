@@ -12,7 +12,7 @@ import { RegisterTypeDialog } from './register-type.dialog';
 })
 export class RegisterComponent implements OnInit, AfterViewInit {
 
-  registerType: 'student' | 'company' | null = null;
+  registerType: 'student' | 'company' | null = 'student';
 
   studentForm!: FormGroup;
   companyForm!: FormGroup;
@@ -28,15 +28,15 @@ export class RegisterComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    const dialogRef = this.dialog.open(RegisterTypeDialog, {
-      disableClose: true,
-      width: '400px'
-    });
+    // const dialogRef = this.dialog.open(RegisterTypeDialog, {
+    //   disableClose: true,
+    //   width: '400px'
+    // });
 
-    dialogRef.afterClosed().subscribe(result => {
-      this.registerType = result;
-      this.cdref.detectChanges();
-    });
+    // dialogRef.afterClosed().subscribe(result => {
+    //   this.registerType = result;
+    //   this.cdref.detectChanges();
+    // });
   }
 
   initializeForms() {

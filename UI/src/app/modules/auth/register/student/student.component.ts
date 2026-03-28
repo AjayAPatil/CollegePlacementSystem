@@ -24,6 +24,7 @@ export class StudentComponent implements OnInit {
   resumeFileName: string | null = null;
   genderOptions = CommonConstants.GenderOptions;
   bloodGroupOptions = CommonConstants.BloodGroupOptions;
+  years: number[] = [];
 
   constructor(
     private fb: FormBuilder,
@@ -33,7 +34,10 @@ export class StudentComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-
+    const currentYear = new Date().getFullYear();
+    for (let i = currentYear; i >= 1950; i--) {
+      this.years.push(i);
+    }
     this.personalForm = this.fb.group({
       firstName: ['', Validators.required],
       middleName: [''],
@@ -70,6 +74,15 @@ export class StudentComponent implements OnInit {
       photo: ['']
     });
 
+  }
+
+  chosenYearHandler(normalizedYear: Date, datepicker: any) {
+    const ctrlValue = this.academicForm.get('passingYear')?.value || new Date();
+    ctrlValue.setFullYear(normalizedYear.getFullYear());
+
+    this.academicForm.get('passingYear')?.setValue(ctrlValue);
+
+    datepicker.close(); // important: stops user from going to month/day view
   }
 
   get skills(): FormArray {
@@ -199,7 +212,7 @@ export class StudentComponent implements OnInit {
     this.authService.upsertUser(formData).subscribe({
       next: (response) => {
         console.log('User registered successfully', response);
-        this.globalService.showMessage.emit({text: 'User registered successfully', type: 'success'})
+        this.globalService.showMessage.emit({ text: 'User registered successfully', type: 'success' })
         this.router.navigate(['/login']);
       },
       error: (error) => {

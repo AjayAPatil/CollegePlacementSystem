@@ -12,15 +12,34 @@
     <td mat-cell *matCellDef="let element"> {{element.lastName}} </td>
   </ng-container>
 
-  <!-- Name Column -->
-  <ng-container matColumnDef="userName">
-    <th mat-header-cell *matHeaderCellDef> userName </th>
-    <td mat-cell *matCellDef="let element"> {{element.user?.userName}} </td>
+  <ng-container matColumnDef="enrollmentNo">
+    <th mat-header-cell *matHeaderCellDef> Enrollment No </th>
+    <td mat-cell *matCellDef="let element"> {{element.enrollmentNo || '-'}} </td>
   </ng-container>
-  <!-- Name Column -->
-  <ng-container matColumnDef="passwordHash">
-    <th mat-header-cell *matHeaderCellDef> passwordHash </th>
-    <td mat-cell *matCellDef="let element"> {{element.user?.passwordHash}} </td>
+
+  <ng-container matColumnDef="department">
+    <th mat-header-cell *matHeaderCellDef> Department </th>
+    <td mat-cell *matCellDef="let element"> {{element.department || '-'}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="passingYear">
+    <th mat-header-cell *matHeaderCellDef> Passing Year </th>
+    <td mat-cell *matCellDef="let element"> {{element.passingYear || '-'}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="email">
+    <th mat-header-cell *matHeaderCellDef> Email </th>
+    <td mat-cell *matCellDef="let element"> {{element.user?.email || '-'}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="phoneNumber">
+    <th mat-header-cell *matHeaderCellDef> Phone Number </th>
+    <td mat-cell *matCellDef="let element"> {{element.user?.mobileNo || '-'}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="selectedCompanyName">
+    <th mat-header-cell *matHeaderCellDef> Selected Company </th>
+    <td mat-cell *matCellDef="let element"> {{element.selectedCompanyName || '-'}} </td>
   </ng-container>
 
   <tr mat-header-row *matHeaderRowDef="studentTblColumns"></tr>

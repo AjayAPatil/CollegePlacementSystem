@@ -22,6 +22,7 @@ export class StudentModel {
   resumeUrl?: string;
   resume?: File | null = null;
   skills?: string;
+  selectedCompanyName?: string;
 
   createdAt: Date = new Date();
 

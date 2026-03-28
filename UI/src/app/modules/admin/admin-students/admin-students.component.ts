@@ -1,5 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { ChartConfiguration } from 'chart.js';
+import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../services/admin.service';
 import { StudentModel } from '../../../shared';
 import { MatTableDataSource } from '@angular/material/table';
@@ -12,7 +11,16 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class AdminStudentsComponent implements OnInit {
 
-  studentTblColumns: string[] = ['firstName', 'lastName', 'userName', 'passwordHash'];
+  studentTblColumns: string[] = [
+    'firstName',
+    'lastName',
+    'enrollmentNo',
+    'department',
+    'passingYear',
+    'email',
+    'phoneNumber',
+    'selectedCompanyName',
+  ];
   studentDataSource = new MatTableDataSource<StudentModel>();
 
   constructor(private adminService: AdminService) {
@@ -25,8 +33,15 @@ export class AdminStudentsComponent implements OnInit {
   private getStudentList() {
     this.adminService.getStudents().subscribe({
       next: (value: StudentModel[]) => {
-        console.log(value);
-        this.studentDataSource.data = value;
+        this.studentDataSource.data = value.map((student) => ({
+          ...student,
+          user: student.user
+            ? {
+                ...student.user,
+                passwordHash: '',
+              }
+            : student.user,
+        }));
       }
     })
   }

@@ -8,7 +8,7 @@ import { AdminModule } from './modules/admin/admin.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CompanyModule } from './modules/company/company.module';
 import { StudentModule } from './modules/student/student.module';
-import { DATE_FORMATS, SharedModule } from './shared';
+import { DATE_FORMATS, MY_YEAR_FORMATS, SharedModule } from './shared';
 import { UnauthorizedComponent } from './shared/components/unauthorized/unauthorized.component';
 import { MAT_DATE_FORMATS } from '@angular/material/core';
 import { MatMomentDateModule } from '@angular/material-moment-adapter';
@@ -31,7 +31,8 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
-    { provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS }
+    { provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS },
+    { provide: MAT_DATE_FORMATS, useValue: MY_YEAR_FORMATS }
   ],
   bootstrap: [AppComponent],
 })
