@@ -39,10 +39,12 @@ namespace API.Controllers
         }
 
         [HttpGet("{page}/{pageSize}")]
-        public async Task<ActionResult<ResponseModel>> Get(int page = 1, int pageSize = 10)
+        public async Task<ActionResult<ResponseModel>> Get(int page = 1, int pageSize = 10, [FromQuery] long? studentId = null)
         {
             try
             {
+                await EnsureJobApplicationsTableAsync();
+
                 page = page < 1 ? 1 : page;
                 pageSize = pageSize < 1 ? 10 : Math.Min(pageSize, 50);
                 int offset = (page - 1) * pageSize;
@@ -59,11 +61,13 @@ WHERE j.Status = 'published'";
             c.CompanyName,
             c.LogoUrl,
 
-            u.UserName AS CreatorName
+            u.UserName AS CreatorName,
+            CAST(CASE WHEN ja.ApplicationId IS NULL THEN 0 ELSE 1 END AS bit) AS IsApplied
 
         FROM Jobs j
         LEFT JOIN Companies c ON j.CompanyId = c.Id
         LEFT JOIN Users u ON j.CreatedBy = u.UserId
+        LEFT JOIN JobApplications ja ON j.JobId = ja.JobId AND (@StudentId IS NOT NULL AND ja.StudentId = @StudentId)
         WHERE j.Status = 'published'
 
         ORDER BY j.CreatedAt DESC
@@ -72,7 +76,7 @@ WHERE j.Status = 'published'";
                 int totalCount = await _sqlQueryHelper.GetSingleAsync<int>(countSql);
                 var jobs = await _sqlQueryHelper.GetListAsync<JobViewModel>(
                     sql,
-                    new { Offset = offset, PageSize = pageSize });
+                    new { Offset = offset, PageSize = pageSize, StudentId = studentId });
 
                 var pagedResult = new PagedResult<JobViewModel>
                 {
@@ -98,6 +102,148 @@ WHERE j.Status = 'published'";
                     Message = ex.Message,
                     Data = new PagedResult<JobViewModel>()
                 });
+            }
+        }
+
+        [HttpGet("details/{jobId:long}")]
+        public async Task<ActionResult<ResponseModel>> GetDetails(long jobId)
+        {
+            try
+            {
+                string sql = @"
+SELECT
+    j.*,
+    c.CompanyName,
+    c.LogoUrl,
+    c.Website AS CompanyWebsite,
+    c.Description AS CompanyDescription,
+    c.Industry AS CompanyIndustry,
+    c.Location AS CompanyLocation,
+    c.HRName AS CompanyHrName,
+    c.ContactEmail AS CompanyContactEmail,
+    c.ContactPhone AS CompanyContactPhone,
+    c.FoundedYear AS CompanyFoundedYear,
+    c.CompanySize,
+    u.UserName AS CreatorName
+FROM Jobs j
+LEFT JOIN Companies c ON j.CompanyId = c.Id
+LEFT JOIN Users u ON j.CreatedBy = u.UserId
+WHERE j.JobId = @JobId";
+
+                JobDetailViewModel? job = await _sqlQueryHelper.GetSingleAsync<JobDetailViewModel>(
+                    sql,
+                    new { JobId = jobId });
+
+                if (job == null)
+                {
+                    return Failure("Job not found.");
+                }
+
+                return Success("Job details retrieved successfully.", job);
+            }
+            catch (Exception ex)
+            {
+                return Failure(ex.Message, ex);
+            }
+        }
+
+        [HttpPost("{jobId:long}/apply")]
+        public async Task<ActionResult<ResponseModel>> Apply(long jobId, [FromBody] JobApplyRequestModel requestData)
+        {
+            try
+            {
+                if (requestData == null || requestData.StudentId <= 0)
+                {
+                    return Failure("Student is required.");
+                }
+
+                await EnsureJobApplicationsTableAsync();
+
+                JobDetailViewModel? job = await _sqlQueryHelper.GetSingleAsync<JobDetailViewModel>(
+                    @"SELECT j.JobId, j.CompanyId, j.Status, j.JobTitle
+FROM Jobs j
+WHERE j.JobId = @JobId",
+                    new { JobId = jobId });
+
+                if (job == null)
+                {
+                    return Failure("Job not found.");
+                }
+
+                if (!string.Equals(job.Status, JobStatus.Published, StringComparison.OrdinalIgnoreCase))
+                {
+                    return Failure("Only published jobs can be applied to.");
+                }
+
+                var student = await _sqlQueryHelper.GetSingleAsync<StudentModel>(
+                    "SELECT * FROM Students WITH (NOLOCK) WHERE Id = @StudentId",
+                    new { requestData.StudentId });
+
+                if (student == null)
+                {
+                    return Failure("Student not found.");
+                }
+
+                var user = await _sqlQueryHelper.GetSingleAsync<UserModel>(
+                    "SELECT * FROM Users WITH (NOLOCK) WHERE UserId = @UserId",
+                    new { student.UserId });
+
+                if (user == null)
+                {
+                    return Failure("Student user not found.");
+                }
+
+                var existingApplication = await _sqlQueryHelper.GetSingleAsync<JobApplicationModel>(
+                    @"SELECT TOP 1 * FROM JobApplications WITH (NOLOCK)
+WHERE JobId = @JobId AND StudentId = @StudentId",
+                    new { JobId = jobId, StudentId = requestData.StudentId });
+
+                if (existingApplication != null)
+                {
+                    return Failure("You have already applied for this job.");
+                }
+
+                JobApplicationModel application = new()
+                {
+                    JobId = jobId,
+                    CompanyId = job.CompanyId,
+                    StudentId = student.Id,
+                    StudentUserId = student.UserId,
+                    StudentName = string.Join(" ", new[] { student.FirstName, student.MiddleName, student.LastName }
+                        .Where(x => !string.IsNullOrWhiteSpace(x))),
+                    StudentEmail = user.Email,
+                    StudentPhone = user.MobileNo,
+                    ResumeFilePath = student.ResumeFilePath,
+                    Status = "applied",
+                    AppliedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                string insertSql = @"
+INSERT INTO JobApplications
+(
+    JobId, CompanyId, StudentId, StudentUserId, StudentName, StudentEmail,
+    StudentPhone, ResumeFilePath, Status, AppliedAt, UpdatedAt
+)
+VALUES
+(
+    @JobId, @CompanyId, @StudentId, @StudentUserId, @StudentName, @StudentEmail,
+    @StudentPhone, @ResumeFilePath, @Status, @AppliedAt, @UpdatedAt
+);
+SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
+
+                long? applicationId = await _sqlQueryHelper.GetSingleAsync<long>(insertSql, application);
+                if (applicationId == null)
+                {
+                    return Failure("Failed to apply for the job.");
+                }
+
+                application.ApplicationId = applicationId.Value;
+                return Success("Job application submitted successfully.", application);
+            }
+            catch (Exception ex)
+            {
+                return Failure(ex.Message, ex);
             }
         }
 
@@ -416,6 +562,37 @@ WHERE JobId = @JobId", new
         private static string NormalizeStatus(string? status)
         {
             return string.IsNullOrWhiteSpace(status) ? JobStatus.Draft : status.Trim().ToLowerInvariant();
+        }
+
+        private async Task EnsureJobApplicationsTableAsync()
+        {
+            const string sql = @"
+IF OBJECT_ID('dbo.JobApplications', 'U') IS NULL
+BEGIN
+    CREATE TABLE [dbo].[JobApplications] (
+        ApplicationId BIGINT IDENTITY(1,1) PRIMARY KEY,
+        JobId BIGINT NOT NULL,
+        CompanyId BIGINT NOT NULL,
+        StudentId BIGINT NOT NULL,
+        StudentUserId BIGINT NOT NULL,
+        StudentName NVARCHAR(250) NOT NULL,
+        StudentEmail NVARCHAR(255) NOT NULL,
+        StudentPhone NVARCHAR(20) NULL,
+        ResumeFilePath NVARCHAR(500) NULL,
+        Status NVARCHAR(30) NOT NULL DEFAULT 'applied',
+        AppliedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+        UpdatedAt DATETIME2 NULL,
+        CONSTRAINT FK_JobApplications_Jobs FOREIGN KEY (JobId) REFERENCES Jobs(JobId) ON DELETE CASCADE,
+        CONSTRAINT FK_JobApplications_Companies FOREIGN KEY (CompanyId) REFERENCES Companies(Id) ON DELETE NO ACTION,
+        CONSTRAINT FK_JobApplications_Students FOREIGN KEY (StudentId) REFERENCES Students(Id) ON DELETE NO ACTION,
+        CONSTRAINT FK_JobApplications_Users FOREIGN KEY (StudentUserId) REFERENCES Users(UserId) ON DELETE NO ACTION
+    );
+
+    CREATE UNIQUE INDEX IX_JobApplications_JobId_StudentId
+    ON JobApplications(JobId, StudentId);
+END";
+
+            await _sqlQueryHelper.ExecuteAsync(sql);
         }
 
         private ActionResult<ResponseModel> Success(string message, object? data = null)

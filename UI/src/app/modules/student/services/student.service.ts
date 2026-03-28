@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments';
-import { CompanyModel, JobFeedItem, JobModel, PagedResult, ResponseModel, StudentModel, UserModel } from '../../../shared';
+import { CompanyModel, JobApplyRequestModel, JobDetailModel, JobFeedItem, JobModel, PagedResult, ResponseModel, StudentModel, UserModel } from '../../../shared';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -16,8 +16,17 @@ export class StudentService {
   getStudents() {
     return this.http.get<Array<StudentModel>>(`${this.apiUrl}/student`);
   }
-  getJobs(page: number, pageSize: number): Observable<ResponseModel & { data: PagedResult<JobFeedItem> }> {
-    return this.http.get<ResponseModel & { data: PagedResult<JobFeedItem> }>(`${this.apiUrl}/jobs/${page}/${pageSize}`);
+  getJobs(page: number, pageSize: number, studentId?: number): Observable<ResponseModel & { data: PagedResult<JobFeedItem> }> {
+    const studentQuery = studentId ? `?studentId=${studentId}` : '';
+    return this.http.get<ResponseModel & { data: PagedResult<JobFeedItem> }>(`${this.apiUrl}/jobs/${page}/${pageSize}${studentQuery}`);
+  }
+
+  getJobDetails(jobId: number): Observable<ResponseModel & { data: JobDetailModel }> {
+    return this.http.get<ResponseModel & { data: JobDetailModel }>(`${this.apiUrl}/jobs/details/${jobId}`);
+  }
+
+  applyForJob(jobId: number, requestData: JobApplyRequestModel): Observable<ResponseModel> {
+    return this.http.post<ResponseModel>(`${this.apiUrl}/jobs/${jobId}/apply`, requestData);
   }
 
   getStudentById(studentId: number) {

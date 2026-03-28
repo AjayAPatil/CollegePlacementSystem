@@ -18,6 +18,14 @@ BEGIN
     ALTER TABLE dbo.Jobs DROP CONSTRAINT FK_Jobs_Users;
 END
 
+IF OBJECT_ID('dbo.JobApplications', 'U') IS NOT NULL
+BEGIN
+    ALTER TABLE dbo.JobApplications DROP CONSTRAINT FK_JobApplications_Jobs;
+    ALTER TABLE dbo.JobApplications DROP CONSTRAINT FK_JobApplications_Companies;
+    ALTER TABLE dbo.JobApplications DROP CONSTRAINT FK_JobApplications_Students;
+    ALTER TABLE dbo.JobApplications DROP CONSTRAINT FK_JobApplications_Users;
+END
+
 IF OBJECT_ID('dbo.Students', 'U') IS NOT NULL
 BEGIN
     ALTER TABLE dbo.Students DROP CONSTRAINT FK_Students_Users;
@@ -33,6 +41,7 @@ END
 DROP TABLES (Child first)
 ------------------------------------------------*/
 
+DROP TABLE IF EXISTS dbo.JobApplications;
 DROP TABLE IF EXISTS dbo.Jobs;
 DROP TABLE IF EXISTS dbo.Students;
 DROP TABLE IF EXISTS dbo.Companies;
@@ -191,6 +200,32 @@ CREATE TABLE [dbo].[Jobs] (
         REFERENCES Companies(Id)
         ON DELETE CASCADE
 );
+
+/*------------------------------------------------
+CREATE JOB APPLICATIONS TABLE
+------------------------------------------------*/
+
+CREATE TABLE [dbo].[JobApplications] (
+    ApplicationId BIGINT IDENTITY(1,1) PRIMARY KEY,
+    JobId BIGINT NOT NULL,
+    CompanyId BIGINT NOT NULL,
+    StudentId BIGINT NOT NULL,
+    StudentUserId BIGINT NOT NULL,
+    StudentName NVARCHAR(250) NOT NULL,
+    StudentEmail NVARCHAR(255) NOT NULL,
+    StudentPhone NVARCHAR(20) NULL,
+    ResumeFilePath NVARCHAR(500) NULL,
+    Status NVARCHAR(30) NOT NULL DEFAULT 'applied',
+    AppliedAt DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+    UpdatedAt DATETIME2 NULL,
+    CONSTRAINT FK_JobApplications_Jobs FOREIGN KEY (JobId) REFERENCES Jobs(JobId) ON DELETE CASCADE,
+    CONSTRAINT FK_JobApplications_Companies FOREIGN KEY (CompanyId) REFERENCES Companies(Id) ON DELETE NO ACTION,
+    CONSTRAINT FK_JobApplications_Students FOREIGN KEY (StudentId) REFERENCES Students(Id) ON DELETE NO ACTION,
+    CONSTRAINT FK_JobApplications_Users FOREIGN KEY (StudentUserId) REFERENCES Users(UserId) ON DELETE NO ACTION
+);
+
+CREATE UNIQUE INDEX IX_JobApplications_JobId_StudentId
+ON JobApplications(JobId, StudentId);
 
 {InsertAdmin}
 ";

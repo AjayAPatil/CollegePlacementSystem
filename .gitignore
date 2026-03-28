@@ -335,3 +335,4 @@ yarn-error.log*
 Reference/
 API/Uploads
 /.dotnet
+/API/bin_verify

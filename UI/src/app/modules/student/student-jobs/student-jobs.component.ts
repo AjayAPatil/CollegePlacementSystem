@@ -1,4 +1,5 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { GlobalService } from '../../../core';
 import { StudentService } from '../services/student.service';
 import { JobFeedItem, PagedResult } from '../../../shared';
 
@@ -16,12 +17,15 @@ export class StudentJobsComponent implements OnInit {
   initialLoading = true;
   hasMore = true;
   totalCount = 0;
+  studentId = 0;
 
   constructor(private readonly studentService: StudentService,
+    private readonly globalService: GlobalService,
     private cdref: ChangeDetectorRef
   ) { }
 
   ngOnInit(): void {
+    this.studentId = this.globalService.userInfo?.student?.id ?? 0;
     this.loadJobs();
   }
 
@@ -46,7 +50,7 @@ export class StudentJobsComponent implements OnInit {
 
     this.loading = true;
 
-    this.studentService.getJobs(this.page, this.pageSize).subscribe({
+    this.studentService.getJobs(this.page, this.pageSize, this.studentId).subscribe({
       next: (response) => {
         if (!this.isSuccessStatus(response.status)) {
           this.loading = false;
@@ -78,7 +82,10 @@ export class StudentJobsComponent implements OnInit {
 
   private normalizePageData(data: any): PagedResult<JobFeedItem> {
     return {
-      items: data?.items ?? data?.Items ?? [],
+      items: (data?.items ?? data?.Items ?? []).map((item: any) => ({
+        ...item,
+        isApplied: item?.isApplied ?? item?.IsApplied ?? false
+      })),
       page: data?.page ?? data?.Page ?? this.page,
       pageSize: data?.pageSize ?? data?.PageSize ?? this.pageSize,
       totalCount: data?.totalCount ?? data?.TotalCount ?? 0,

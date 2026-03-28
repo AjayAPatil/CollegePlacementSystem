@@ -79,6 +79,27 @@ export interface JobFeedItem {
   requiredSkills?: string;
   preferredSkills?: string;
   status?: string;
+  isApplied?: boolean;
   createdAt: Date | string;
   expiryDate?: Date | string;
+}
+
+export interface JobDetailModel extends JobFeedItem {
+  department?: string;
+  responsibilities?: string;
+  requiredSkills?: string;
+  preferredSkills?: string;
+  companyWebsite?: string;
+  companyDescription?: string;
+  companyIndustry?: string;
+  companyLocation?: string;
+  companyHrName?: string;
+  companyContactEmail?: string;
+  companyContactPhone?: string;
+  companyFoundedYear?: number;
+  companySize?: number;
+}
+
+export interface JobApplyRequestModel {
+  studentId: number;
 }

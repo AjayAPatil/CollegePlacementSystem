@@ -25,6 +25,7 @@
           <span>{{ job.workMode }}</span>
           <span>{{ job.experienceMin }}-{{ job.experienceMax }} yrs</span>
           <span>{{ job.openings }} openings</span>
+          <span class="applied-chip" *ngIf="job.isApplied">Applied</span>
         </div>
 
         <p class="job-copy" *ngIf="job.qualifications">{{ job.qualifications }}</p>
@@ -32,7 +33,8 @@
       </mat-card-content>
 
       <mat-card-actions>
-        <button mat-flat-button color="primary">View Details</button>
+        <button mat-stroked-button disabled *ngIf="job.isApplied">Applied</button>
+        <button mat-flat-button color="primary" *ngIf="!job.isApplied" [routerLink]="['/student/jobs', job.jobId]">View Details</button>
       </mat-card-actions>
     </mat-card>
 

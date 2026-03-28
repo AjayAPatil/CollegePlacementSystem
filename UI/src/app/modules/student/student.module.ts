@@ -8,13 +8,15 @@ import { provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { StudentProfileComponent } from './student-profile/student-profile.component';
 import { SharedModule } from '../../shared';
 import { StudentJobsComponent } from './student-jobs/student-jobs.component';
+import { StudentJobDetailsComponent } from './student-job-details/student-job-details.component';
 
 @NgModule({
   declarations: [
     StudentComponent,
     StudentDashboardComponent,
     StudentProfileComponent,
-    StudentJobsComponent
+    StudentJobsComponent,
+    StudentJobDetailsComponent
   ],
   imports: [
     CommonModule,

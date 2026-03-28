@@ -56,5 +56,40 @@ namespace API.Model
         public string CompanyName { get; set; } = string.Empty;
         public string? LogoUrl { get; set; }
         public string CreatorName { get; set; } = string.Empty;
+        public bool IsApplied { get; set; }
+    }
+
+    public class JobDetailViewModel : JobViewModel
+    {
+        public string? CompanyWebsite { get; set; }
+        public string? CompanyDescription { get; set; }
+        public string? CompanyIndustry { get; set; }
+        public string? CompanyLocation { get; set; }
+        public string? CompanyHrName { get; set; }
+        public string? CompanyContactEmail { get; set; }
+        public string? CompanyContactPhone { get; set; }
+        public int? CompanyFoundedYear { get; set; }
+        public int? CompanySize { get; set; }
+    }
+
+    public class JobApplicationModel
+    {
+        public long ApplicationId { get; set; }
+        public long JobId { get; set; }
+        public long CompanyId { get; set; }
+        public long StudentId { get; set; }
+        public long StudentUserId { get; set; }
+        public string StudentName { get; set; } = string.Empty;
+        public string StudentEmail { get; set; } = string.Empty;
+        public string? StudentPhone { get; set; }
+        public string? ResumeFilePath { get; set; }
+        public string Status { get; set; } = "applied";
+        public DateTime AppliedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
+    }
+
+    public class JobApplyRequestModel
+    {
+        public long StudentId { get; set; }
     }
 }

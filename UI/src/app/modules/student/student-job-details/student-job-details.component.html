@@ -1,0 +1,96 @@
+<section class="job-details-page" *ngIf="jobDetails as job">
+  <header class="hero-card">
+    <div class="hero-copy">
+      <button mat-stroked-button type="button" (click)="goBack()">Back to Jobs</button>
+      <p class="eyebrow">Job Details</p>
+      <h1>{{ job.jobTitle }}</h1>
+      <p class="hero-meta">{{ job.companyName }} | {{ job.location }} | {{ job.workMode }}</p>
+    </div>
+
+    <div class="hero-actions">
+      <button mat-flat-button color="primary" type="button" (click)="applyForJob()" [disabled]="applying || hasApplied">
+        {{ hasApplied ? 'Applied' : (applying ? 'Applying...' : 'Apply for Job') }}
+      </button>
+    </div>
+  </header>
+
+  <div class="content-grid">
+    <mat-card class="content-card">
+      <mat-card-header>
+        <mat-card-title>Role Overview</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="chip-row">
+          <span>{{ job.jobType }}</span>
+          <span>{{ job.workMode }}</span>
+          <span>{{ job.experienceMin }}-{{ job.experienceMax }} yrs</span>
+          <span>{{ job.openings }} openings</span>
+        </div>
+
+        <div class="detail-block" *ngIf="job.department">
+          <h3>Department</h3>
+          <p>{{ job.department }}</p>
+        </div>
+
+        <div class="detail-block" *ngIf="job.qualifications">
+          <h3>Qualifications</h3>
+          <p>{{ job.qualifications }}</p>
+        </div>
+
+        <div class="detail-block" *ngIf="job.responsibilities">
+          <h3>Responsibilities</h3>
+          <p>{{ job.responsibilities }}</p>
+        </div>
+
+        <div class="detail-block" *ngIf="job.requiredSkills">
+          <h3>Required Skills</h3>
+          <p>{{ job.requiredSkills }}</p>
+        </div>
+
+        <div class="detail-block" *ngIf="job.preferredSkills">
+          <h3>Preferred Skills</h3>
+          <p>{{ job.preferredSkills }}</p>
+        </div>
+
+        <div class="detail-block" *ngIf="job.benefits">
+          <h3>Benefits</h3>
+          <p>{{ job.benefits }}</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="content-card">
+      <mat-card-header>
+        <mat-card-title>Company Profile</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="company-brand">
+          <div class="company-avatar">{{ (job.companyName || 'C').charAt(0) }}</div>
+          <div>
+            <h3>{{ job.companyName }}</h3>
+            <p>{{ job.companyIndustry || 'Industry not specified' }}</p>
+          </div>
+        </div>
+
+        <div class="detail-block" *ngIf="job.companyDescription">
+          <h3>About Company</h3>
+          <p>{{ job.companyDescription }}</p>
+        </div>
+
+        <div class="detail-list">
+          <div><strong>Location:</strong> {{ job.companyLocation || job.location }}</div>
+          <div><strong>Website:</strong> {{ job.companyWebsite || 'Not provided' }}</div>
+          <div><strong>HR Contact:</strong> {{ job.companyHrName || 'Not provided' }}</div>
+          <div><strong>Email:</strong> {{ job.companyContactEmail || 'Not provided' }}</div>
+          <div><strong>Phone:</strong> {{ job.companyContactPhone || 'Not provided' }}</div>
+          <div><strong>Founded:</strong> {{ job.companyFoundedYear || 'Not provided' }}</div>
+          <div><strong>Company Size:</strong> {{ job.companySize || 'Not provided' }}</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</section>
+
+<section class="job-details-page loading-shell" *ngIf="loading">
+  <p>Loading job details...</p>
+</section>
