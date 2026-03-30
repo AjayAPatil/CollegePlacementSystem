@@ -1,7 +1,7 @@
-export class ResponseModel {
-    status: string = '';
+export class ResponseModel<T = unknown> {
+    status: string | number = '';
     message: string = '';
-    data: any = null;
+    data: T | null = null;
 }
 
 export interface PagedResult<T> {
@@ -10,4 +10,8 @@ export interface PagedResult<T> {
     pageSize: number;
     totalCount: number;
     hasMore: boolean;
+}
+
+export function isSuccessResponse(response: Pick<ResponseModel, 'status'> | null | undefined): boolean {
+    return response?.status === 0 || response?.status === '0';
 }

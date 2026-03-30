@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { environment } from '../../../../environments';
 import { CompanyModel, ResponseModel, StudentModel, UserModel } from '../../../shared';
 
@@ -12,18 +13,18 @@ export class AdminService {
 
   constructor(private http: HttpClient) { }
 
-  getStudents() {
-    return this.http.get<Array<StudentModel>>(`${this.apiUrl}/student`);
+  getStudents(): Observable<ResponseModel<StudentModel[]>> {
+    return this.http.get<ResponseModel<StudentModel[]>>(`${this.apiUrl}/student`);
   }
 
-  getStudentById(studentId: number) {
-    return this.http.get<StudentModel>(`${this.apiUrl}/student/${studentId}`);
+  getStudentById(studentId: number): Observable<ResponseModel<StudentModel>> {
+    return this.http.get<ResponseModel<StudentModel>>(`${this.apiUrl}/student/${studentId}`);
   }
 
-  getCompanies() {
-    return this.http.get<Array<CompanyModel>>(`${this.apiUrl}/company`);
+  getCompanies(): Observable<ResponseModel<CompanyModel[]>> {
+    return this.http.get<ResponseModel<CompanyModel[]>>(`${this.apiUrl}/company`);
   }
-  saveCompany(formData: FormData) {
-    return this.http.post<ResponseModel>(`${this.apiUrl}/company`, formData);
+  saveCompany(formData: FormData): Observable<ResponseModel<CompanyModel>> {
+    return this.http.post<ResponseModel<CompanyModel>>(`${this.apiUrl}/company`, formData);
   }
 }

@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { GlobalService } from '../../../core';
 import { StudentService } from '../services/student.service';
-import { JobFeedItem, PagedResult } from '../../../shared';
+import { isSuccessResponse, JobFeedItem, PagedResult, ResponseModel } from '../../../shared';
 
 @Component({
   standalone: false,
@@ -51,10 +51,11 @@ export class StudentJobsComponent implements OnInit {
     this.loading = true;
 
     this.studentService.getJobs(this.page, this.pageSize, this.studentId).subscribe({
-      next: (response) => {
-        if (!this.isSuccessStatus(response.status)) {
+      next: (response: ResponseModel<PagedResult<JobFeedItem>>) => {
+        if (!isSuccessResponse(response)) {
           this.loading = false;
           this.initialLoading = false;
+          this.globalService.showErrorMessage(response.message || 'Failed to load jobs.');
           return;
         }
 
@@ -74,10 +75,6 @@ export class StudentJobsComponent implements OnInit {
         this.initialLoading = false;
       }
     });
-  }
-
-  private isSuccessStatus(status: string | number | undefined): boolean {
-    return status === 0 || status === '0';
   }
 
   private normalizePageData(data: any): PagedResult<JobFeedItem> {

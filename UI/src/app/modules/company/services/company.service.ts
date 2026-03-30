@@ -22,59 +22,59 @@ export class CompanyService {
 
   constructor(private http: HttpClient) { }
 
-  getStudents() {
-    return this.http.get<Array<StudentModel>>(`${this.apiUrl}/student`);
+  getStudents(): Observable<ResponseModel<StudentModel[]>> {
+    return this.http.get<ResponseModel<StudentModel[]>>(`${this.apiUrl}/student`);
   }
-  getJobs() {
-    return this.http.get<Array<JobModel>>(`${this.apiUrl}/jobs`);
-  }
-
-  getStudentById(studentId: number) {
-    return this.http.get<StudentModel>(`${this.apiUrl}/student/${studentId}`);
+  getJobs(): Observable<ResponseModel<JobModel[]>> {
+    return this.http.get<ResponseModel<JobModel[]>>(`${this.apiUrl}/jobs`);
   }
 
-  getCompanyApplications(companyId: number): Observable<ResponseModel & { data: CompanyJobApplicationListItem[] }> {
-    return this.http.get<ResponseModel & { data: CompanyJobApplicationListItem[] }>(
+  getStudentById(studentId: number): Observable<ResponseModel<StudentModel>> {
+    return this.http.get<ResponseModel<StudentModel>>(`${this.apiUrl}/student/${studentId}`);
+  }
+
+  getCompanyApplications(companyId: number): Observable<ResponseModel<CompanyJobApplicationListItem[]>> {
+    return this.http.get<ResponseModel<CompanyJobApplicationListItem[]>>(
       `${this.apiUrl}/jobs/applications/company/${companyId}`
     );
   }
 
-  getApplicationDetails(applicationId: number, companyId: number): Observable<ResponseModel & { data: CompanyJobApplicationDetail }> {
-    return this.http.get<ResponseModel & { data: CompanyJobApplicationDetail }>(
+  getApplicationDetails(applicationId: number, companyId: number): Observable<ResponseModel<CompanyJobApplicationDetail>> {
+    return this.http.get<ResponseModel<CompanyJobApplicationDetail>>(
       `${this.apiUrl}/jobs/applications/${applicationId}?companyId=${companyId}`
     );
   }
 
-  scheduleInterview(applicationId: number, requestData: ScheduleInterviewRequestModel): Observable<ResponseModel & { data: CompanyJobApplicationDetail }> {
-    return this.http.patch<ResponseModel & { data: CompanyJobApplicationDetail }>(
+  scheduleInterview(applicationId: number, requestData: ScheduleInterviewRequestModel): Observable<ResponseModel<CompanyJobApplicationDetail>> {
+    return this.http.patch<ResponseModel<CompanyJobApplicationDetail>>(
       `${this.apiUrl}/jobs/applications/${applicationId}/schedule-interview`,
       requestData
     );
   }
 
-  updateApplicationStatus(applicationId: number, requestData: JobApplicationStatusUpdateRequestModel): Observable<ResponseModel & { data: CompanyJobApplicationDetail }> {
-    return this.http.patch<ResponseModel & { data: CompanyJobApplicationDetail }>(
+  updateApplicationStatus(applicationId: number, requestData: JobApplicationStatusUpdateRequestModel): Observable<ResponseModel<CompanyJobApplicationDetail>> {
+    return this.http.patch<ResponseModel<CompanyJobApplicationDetail>>(
       `${this.apiUrl}/jobs/applications/${applicationId}/status`,
       requestData
     );
   }
 
-  getCompanies() {
-    return this.http.get<Array<CompanyModel>>(`${this.apiUrl}/company`);
+  getCompanies(): Observable<ResponseModel<CompanyModel[]>> {
+    return this.http.get<ResponseModel<CompanyModel[]>>(`${this.apiUrl}/company`);
   }
-  saveCompany(formData: FormData) {
-    return this.http.post<ResponseModel>(`${this.apiUrl}/company`, formData);
+  saveCompany(formData: FormData): Observable<ResponseModel<CompanyModel>> {
+    return this.http.post<ResponseModel<CompanyModel>>(`${this.apiUrl}/company`, formData);
   }
-  saveJobs(formData: FormData) {
-    return this.http.post<ResponseModel>(`${this.apiUrl}/jobs`, formData);
+  saveJobs(formData: FormData): Observable<ResponseModel<JobModel>> {
+    return this.http.post<ResponseModel<JobModel>>(`${this.apiUrl}/jobs`, formData);
   }
-  updateJob(jobId: number, formData: FormData) {
-    return this.http.put<ResponseModel>(`${this.apiUrl}/jobs/${jobId}`, formData);
+  updateJob(jobId: number, formData: FormData): Observable<ResponseModel<JobModel>> {
+    return this.http.put<ResponseModel<JobModel>>(`${this.apiUrl}/jobs/${jobId}`, formData);
   }
-  updateJobStatus(jobId: number, status: string) {
+  updateJobStatus(jobId: number, status: string): Observable<ResponseModel> {
     return this.http.patch<ResponseModel>(`${this.apiUrl}/jobs/${jobId}/status`, { status });
   }
-  deleteJob(jobId: number) {
+  deleteJob(jobId: number): Observable<ResponseModel> {
     return this.http.delete<ResponseModel>(`${this.apiUrl}/jobs/${jobId}`);
   }
 }

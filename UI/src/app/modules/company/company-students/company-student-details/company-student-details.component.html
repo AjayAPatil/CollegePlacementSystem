@@ -14,7 +14,7 @@
     </div>
   </header>
 
-  <div class="content-grid">
+  <div class="grid-2" style="gap: 20px;">
     <mat-card class="content-card">
       <mat-card-header>
         <mat-card-title>Student Profile</mat-card-title>
@@ -69,7 +69,8 @@
         <form [formGroup]="interviewForm" class="interview-form">
           <mat-form-field appearance="outline">
             <mat-label>Interview Date</mat-label>
-            <input matInput [min]="minInterviewDate" [matDatepicker]="interviewDatePicker" formControlName="interviewDate">
+            <input matInput [min]="minInterviewDate" [matDatepicker]="interviewDatePicker"
+              formControlName="interviewDate">
             <mat-datepicker-toggle matSuffix [for]="interviewDatePicker"></mat-datepicker-toggle>
             <mat-datepicker #interviewDatePicker></mat-datepicker>
             <mat-error *ngIf="interviewForm.controls.interviewDate.invalid">Interview date is required</mat-error>
@@ -77,8 +78,10 @@
 
           <mat-form-field appearance="outline">
             <mat-label>Interview Time</mat-label>
-            <input matInput type="time" formControlName="interviewTime">
+            <input matInput formControlName="interviewTime" [matTimepicker]="tpicker">
             <mat-error *ngIf="interviewForm.controls.interviewTime.invalid">Interview time is required</mat-error>
+            <mat-timepicker-toggle matIconSuffix [for]="tpicker" />
+            <mat-timepicker #tpicker />
           </mat-form-field>
 
           <mat-form-field appearance="outline">

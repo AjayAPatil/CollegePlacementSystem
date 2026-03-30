@@ -9,8 +9,7 @@ using System.Text.Json.Serialization;
 namespace API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class UserController : ControllerBase
+    public class UserController : BaseApiController
     {
         private readonly ISqlQueryHelper _sqlQueryHelper;
 
@@ -20,19 +19,43 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<UserModel>>> Get()
+        public async Task<ActionResult<ResponseModel>> Get()
         {
-            string sql = "SELECT * FROM Users With(nolock)";
-            List<UserModel>? userList = await _sqlQueryHelper.GetListAsync<UserModel>(sql);
-            return userList == null || userList.Count == 0 ? (ActionResult<List<UserModel>>)NotFound() : (ActionResult<List<UserModel>>)Ok(userList);
+            try
+            {
+                string sql = "SELECT * FROM Users With(nolock)";
+                List<UserModel>? userList = await _sqlQueryHelper.GetListAsync<UserModel>(sql);
+                return Success("Users retrieved successfully.", userList ?? []);
+            }
+            catch (Exception ex)
+            {
+                return Failure($"Error - {ex.Message}");
+            }
         }
 
         [HttpGet("{userId}")]
-        public async Task<ActionResult<UserModel>> Get(long userId)
+        public async Task<ActionResult<ResponseModel>> Get(long userId)
         {
-            string sql = "SELECT * FROM Users with(nolock) WHERE UserId = @UserId";
-            UserModel? user = await _sqlQueryHelper.GetSingleAsync<UserModel>(sql, new { UserId = userId });
-            return user == null ? (ActionResult<UserModel>)NotFound() : (ActionResult<UserModel>)Ok(user);
+            try
+            {
+                if (userId <= 0)
+                {
+                    return Failure("User id is required.");
+                }
+
+                string sql = "SELECT * FROM Users with(nolock) WHERE UserId = @UserId";
+                UserModel? user = await _sqlQueryHelper.GetSingleAsync<UserModel>(sql, new { UserId = userId });
+                if (user == null)
+                {
+                    return Failure("User not found.");
+                }
+
+                return Success("User retrieved successfully.", user);
+            }
+            catch (Exception ex)
+            {
+                return Failure($"Error - {ex.Message}");
+            }
         }
 
         [HttpGet("profile/{userId}")]
@@ -43,44 +66,30 @@ namespace API.Controllers
                 UserModel? user = await GetUserWithDetails(userId);
                 if (user == null)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "User not found."
-                    });
+                    return Failure("User not found.");
                 }
 
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Success,
-                    Message = "Profile fetched successfully.",
-                    Data = user
-                });
+                return Success("Profile fetched successfully.", user);
             }
             catch (Exception ex)
             {
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Failure,
-                    Message = $"Error - {ex.Message}",
-                    Data = ex
-                });
+                return Failure($"Error - {ex.Message}");
             }
         }
 
         [HttpPost]
-        public async Task<ActionResult> Post([FromForm] UserCreateDTO reqestData)
+        public async Task<ActionResult<ResponseModel>> Post([FromForm] UserCreateDTO reqestData)
         {
             try
             {
                 if (reqestData == null)
                 {
-                    return BadRequest("User data is required.");
+                    return Failure("User data is required.");
                 }
 
                 if (string.IsNullOrEmpty(reqestData.Data))
                 {
-                    return BadRequest("User data is required.");
+                    return Failure("User data is required.");
                 }
 
                 UserModel? user = System.Text.Json.JsonSerializer.Deserialize<UserModel>(reqestData.Data, new System.Text.Json.JsonSerializerOptions
@@ -90,44 +99,39 @@ namespace API.Controllers
                 });
                 if (user == null)
                 {
-                    return BadRequest("Invalid user data.");
+                    return Failure("Invalid user data.");
                 }
 
                 if (user.UserName == null || user.Email == null || user.PasswordHash == null || user.Role == null || user.Status == null)
                 {
-                    return BadRequest("All fields are required.");
+                    return Failure("All fields are required.");
                 }
 
-                if (user.Role != UserRole.Admin.ToString() && user.Role == UserRole.Student.ToString() && user.Role == UserRole.Company.ToString())
+                if (user.Role != UserRole.Admin && user.Role != UserRole.Student && user.Role != UserRole.Company)
                 {
-                    return BadRequest("Invalid role specified.");
+                    return Failure("Invalid role specified.");
                 }
 
                 if (user.Status != UserStatus.Active.ToString() && user.Status != UserStatus.Inactive.ToString() && user.Status != UserStatus.Pending && user.Status != UserStatus.Rejected)
                 {
-                    return BadRequest("Invalid status specified.");
+                    return Failure("Invalid status specified.");
                 }
 
                 if (user.Role == UserRole.Student.ToString()
                     && (user.Student == null || string.IsNullOrEmpty(user.Student.FirstName) || string.IsNullOrEmpty(user.Student.LastName) || string.IsNullOrEmpty(user.Student.EnrollmentNo)))
                 {
-                    return BadRequest("Student details are required for student role.");
+                    return Failure("Student details are required for student role.");
                 }
                 if (user.Role == UserRole.Company.ToString() && user.Company == null)
                 {
-                    return BadRequest("Company details are required for company role.");
+                    return Failure("Company details are required for company role.");
                 }
                 string sql = "select * from Users with(nolock) where Email = @Email";
                 List<UserModel> userList = await _sqlQueryHelper.GetListAsync<UserModel>(sql, new { user.Email });
 
                 if (userList.Any())
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Email Id Already Registered!",
-                        Data = userList
-                    });
+                    return Failure("Email Id Already Registered!", userList);
                 }
 
                 string profilePath = "";
@@ -178,7 +182,7 @@ namespace API.Controllers
 
                 if (user.UserId > 0)
                 {
-                    return NotFound();
+                    return Failure("New users cannot include an existing user id.");
                 }
                 user.CreatedAt = DateTime.UtcNow;
                 user.ProfileImagePath = profilePath;
@@ -193,7 +197,7 @@ SELECT CAST(SCOPE_IDENTITY() as bigint);
                 long? newUserId = await _sqlQueryHelper.GetSingleAsync<long>(userSql, user);
                 if (newUserId == null)
                 {
-                    return BadRequest("Failed to create user.");
+                    return Failure("Failed to create user.");
                 }
                 user.UserId = newUserId.Value;
                 if (user.Role == UserRole.Student.ToString() && user.Student != null)
@@ -207,8 +211,8 @@ values (@UserId, @FirstName, @MiddleName, @LastName, @DateOfBirth, @Nationality,
 ";
                     _ = await _sqlQueryHelper.ExecuteAsync(studentSql, user.Student);
 
-
-                    return CreatedAtAction(nameof(Get), new { userId = newUserId });
+                    UserModel? createdStudentUser = await GetUserWithDetails(user.UserId);
+                    return Success("User created successfully.", createdStudentUser ?? user);
 
                 }
                 else if (user.Role == UserRole.Company.ToString() && user.Company != null)
@@ -216,16 +220,17 @@ values (@UserId, @FirstName, @MiddleName, @LastName, @DateOfBirth, @Nationality,
                     user.Company.UserId = user.UserId;
                     string companySql = @"
 Insert into Companies (UserId, CompanyName, Industry, CompanySize, Website, Description, CreatedAt)
-values (@varUserId, @CompanyName, @Industry, @CompanySize, @Website, @Description, @CreatedAt)
+values (@UserId, @CompanyName, @Industry, @CompanySize, @Website, @Description, @CreatedAt)
 ";
                     _ = await _sqlQueryHelper.ExecuteAsync(companySql, user.Company);
-                    return CreatedAtAction(nameof(Get), new { userId = newUserId });
+                    UserModel? createdCompanyUser = await GetUserWithDetails(user.UserId);
+                    return Success("User created successfully.", createdCompanyUser ?? user);
                 }
-                return Ok(user);
+                return Success("User created successfully.", user);
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Failure($"Error - {ex.Message}");
             }
         }
 
@@ -236,21 +241,13 @@ values (@varUserId, @CompanyName, @Industry, @CompanySize, @Website, @Descriptio
             {
                 if (request == null || request.UserId <= 0)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Invalid user data."
-                    });
+                    return Failure("Invalid user data.");
                 }
 
                 UserModel? existingUser = await GetUserWithDetails(request.UserId);
                 if (existingUser == null || existingUser.IsDeleted)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "User not found."
-                    });
+                    return Failure("User not found.");
                 }
 
                 request.UserName = existingUser.UserName;
@@ -324,21 +321,11 @@ WHERE UserId = @UserId";
 
                 UserModel? updatedUser = await GetUserWithDetails(request.UserId);
 
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Success,
-                    Message = "Profile updated successfully.",
-                    Data = updatedUser
-                });
+                return Success("Profile updated successfully.", updatedUser);
             }
             catch (Exception ex)
             {
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Failure,
-                    Message = $"Error - {ex.Message}",
-                    Data = ex
-                });
+                return Failure($"Error - {ex.Message}");
             }
         }
 
@@ -349,31 +336,19 @@ WHERE UserId = @UserId";
             {
                 if (request == null || request.UserId <= 0)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Invalid password request."
-                    });
+                    return Failure("Invalid password request.");
                 }
 
                 if (string.IsNullOrWhiteSpace(request.OldPassword) ||
                     string.IsNullOrWhiteSpace(request.NewPassword) ||
                     string.IsNullOrWhiteSpace(request.VerifyNewPassword))
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "All password fields are required."
-                    });
+                    return Failure("All password fields are required.");
                 }
 
                 if (request.NewPassword != request.VerifyNewPassword)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "New password and verify password must match."
-                    });
+                    return Failure("New password and verify password must match.");
                 }
 
                 UserModel? user = await _sqlQueryHelper.GetSingleAsync<UserModel>(
@@ -382,29 +357,17 @@ WHERE UserId = @UserId";
 
                 if (user == null || user.IsDeleted)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "User not found."
-                    });
+                    return Failure("User not found.");
                 }
 
                 if (user.PasswordHash != request.OldPassword)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Old password is incorrect."
-                    });
+                    return Failure("Old password is incorrect.");
                 }
 
                 if (request.OldPassword == request.NewPassword)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "New password must be different from old password."
-                    });
+                    return Failure("New password must be different from old password.");
                 }
 
                 _ = await _sqlQueryHelper.ExecuteAsync(
@@ -416,20 +379,11 @@ WHERE UserId = @UserId";
                         UpdatedAt = DateTime.UtcNow
                     });
 
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Success,
-                    Message = "Password updated successfully."
-                });
+                return Success("Password updated successfully.");
             }
             catch (Exception ex)
             {
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Failure,
-                    Message = $"Error - {ex.Message}",
-                    Data = ex
-                });
+                return Failure($"Error - {ex.Message}");
             }
         }
 

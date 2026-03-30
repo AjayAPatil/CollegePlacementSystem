@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { CommonConstants, StudentModel, UserModel, UserRoleConstants, UserStatusConstants } from '../../../../shared';
+import { CommonConstants, isSuccessResponse, ResponseModel, StudentModel, UserModel, UserRoleConstants, UserStatusConstants } from '../../../../shared';
 import { Router } from '@angular/router';
 import { GlobalService } from '../../../../core';
 
@@ -211,8 +211,12 @@ export class StudentComponent implements OnInit {
     formData.append('data', JSON.stringify(dataToSubmit));
 
     this.authService.upsertUser(formData).subscribe({
-      next: (response) => {
-        console.log('User registered successfully', response);
+      next: (response: ResponseModel<UserModel>) => {
+        if (!isSuccessResponse(response)) {
+          this.globalService.showMessage.emit({ text: response.message || 'Unable to register user.', type: 'error' });
+          return;
+        }
+
         const username = this.contactForm.value.email;
         window.alert(
           `User registered successfully.\n\nUsername: ${username}\nDefault Password: ${this.defaultLoginPassword}\n\nRemember this password and login, then go to profile and change password.`

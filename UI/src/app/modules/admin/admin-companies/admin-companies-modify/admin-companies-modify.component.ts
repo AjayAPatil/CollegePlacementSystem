@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { AdminService } from '../../services/admin.service';
-import { CompanyModel, ResponseModel, UserModel } from '../../../../shared';
+import { CompanyModel, isSuccessResponse, ResponseModel, UserModel } from '../../../../shared';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { GlobalService } from '../../../../core';
@@ -100,7 +100,7 @@ export class AdminCompaniesModifyComponent implements OnInit {
 
     this.adminService.saveCompany(dataToSubmit).subscribe({
       next: (response: ResponseModel) => {
-        if (response?.status == "0") {
+        if (isSuccessResponse(response)) {
           this.globalService.showSuccessMessage(response.message);
           this.backToList()
         } else {

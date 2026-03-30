@@ -31,8 +31,7 @@ import { MatMomentDateModule } from '@angular/material-moment-adapter';
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
-    { provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS },
-    { provide: MAT_DATE_FORMATS, useValue: MY_YEAR_FORMATS }
+    //{ provide: MAT_DATE_FORMATS, useValue: DATE_FORMATS },
   ],
   bootstrap: [AppComponent],
 })

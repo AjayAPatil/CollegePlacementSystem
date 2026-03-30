@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Form, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { GlobalService, UserModel, UserRoleConstants } from '../../index';
+import { GlobalService, isSuccessResponse, ResponseModel, UserModel, UserRoleConstants } from '../../index';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -39,14 +39,13 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(this.loginForm.value)
       .subscribe({
-        next: (response: any) => {
-          if (response.status == '0') {
+        next: (response: ResponseModel<UserModel>) => {
+          if (isSuccessResponse(response) && response.data) {
             this.globalService.showSuccessMessage(response.message);
-            const userInfo = response.data as UserModel;
+            const userInfo = response.data;
             userInfo.isLoggedIn = true;
             this.globalService.setUserInfo(userInfo);
             this.cdref.detectChanges();
-            localStorage.setItem('token', response.token);
             localStorage.setItem('role', userInfo.role);
             this.navigateToDashboard(userInfo.role)
           } else {

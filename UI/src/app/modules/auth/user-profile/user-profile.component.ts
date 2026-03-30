@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { GlobalService } from '../../../core';
-import { CompanyModel, StudentModel, UserModel } from '../../../shared';
+import { CompanyModel, isSuccessResponse, ResponseModel, StudentModel, UserModel } from '../../../shared';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -109,7 +109,7 @@ export class UserProfileComponent implements OnInit {
 
     this.isLoading = true;
     this.authService.getProfile(this.userInfo.userId).subscribe({
-      next: (response: any) => {
+      next: (response: ResponseModel<UserModel>) => {
         this.isLoading = false;
         if (!this.isSuccess(response)) {
           this.globalService.showErrorMessage(response?.message || 'Unable to fetch profile.');
@@ -137,7 +137,7 @@ export class UserProfileComponent implements OnInit {
     this.isSavingProfile = true;
 
     this.authService.updateProfile(updatedUser).subscribe({
-      next: (response: any) => {
+      next: (response: ResponseModel<UserModel>) => {
         this.isSavingProfile = false;
         if (!this.isSuccess(response)) {
           this.globalService.showErrorMessage(response?.message || 'Unable to update profile.');
@@ -173,7 +173,7 @@ export class UserProfileComponent implements OnInit {
       newPassword: this.passwordForm.get('newPassword')?.value,
       verifyNewPassword: this.passwordForm.get('verifyNewPassword')?.value,
     }).subscribe({
-      next: (response: any) => {
+      next: (response: ResponseModel) => {
         this.isSavingPassword = false;
         if (!this.isSuccess(response)) {
           this.passwordErrorMessage = response?.message || 'Unable to update password.';
@@ -315,7 +315,7 @@ export class UserProfileComponent implements OnInit {
     return date.toISOString().split('T')[0];
   }
 
-  private isSuccess(response: any): boolean {
-    return response?.status === 0 || response?.status === '0';
+  private isSuccess(response: ResponseModel | null | undefined): boolean {
+    return isSuccessResponse(response);
   }
 }

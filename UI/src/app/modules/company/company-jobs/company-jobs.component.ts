@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CompanyService } from '../services/company.service';
-import { JobModel, ResponseModel } from '../../../shared';
+import { isSuccessResponse, JobModel, ResponseModel } from '../../../shared';
 import { MatTableDataSource } from '@angular/material/table';
 import { GlobalService } from '../../../core';
 
@@ -29,8 +29,14 @@ export class CompanyJobsComponent implements OnInit {
 
   public getJobList() {
     this.companyService.getJobs().subscribe({
-      next: (value: JobModel[]) => {
-        this.jobDataSource.data = value;
+      next: (response: ResponseModel<JobModel[]>) => {
+        if (!isSuccessResponse(response)) {
+          this.jobDataSource.data = [];
+          this.globalService.showErrorMessage(response.message || 'Failed to load jobs.');
+          return;
+        }
+
+        this.jobDataSource.data = response.data ?? [];
       }
     })
   }
@@ -58,7 +64,7 @@ export class CompanyJobsComponent implements OnInit {
 
     this.companyService.deleteJob(job.jobId).subscribe({
       next: (response: ResponseModel) => {
-        if (response?.status == '0') {
+        if (isSuccessResponse(response)) {
           this.globalService.showSuccessMessage(response.message);
           this.getJobList();
           return;
@@ -75,7 +81,7 @@ export class CompanyJobsComponent implements OnInit {
   private updateJobStatus(jobId: number, status: string, successMessage: string) {
     this.companyService.updateJobStatus(jobId, status).subscribe({
       next: (response: ResponseModel) => {
-        if (response?.status == '0') {
+        if (isSuccessResponse(response)) {
           this.globalService.showSuccessMessage(response.message || successMessage);
           this.getJobList();
           return;

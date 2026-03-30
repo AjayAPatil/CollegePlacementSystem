@@ -7,8 +7,7 @@ using System.Text.Json.Serialization;
 namespace API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class CompanyController : ControllerBase
+    public class CompanyController : BaseApiController
     {
         private readonly ISqlQueryHelper _sqlQueryHelper;
         public CompanyController(ISqlQueryHelper sqlQueryHelper)
@@ -17,22 +16,35 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<CompanyModel>>> Get()
+        public async Task<ActionResult<ResponseModel>> Get()
         {
-            string sql = "select * from Companies c with(nolock)";
-            List<CompanyModel> companyList = await _sqlQueryHelper.GetListAsync<CompanyModel>(sql);
-            sql = "select * from Users u with(nolock) where Email in ("
-                + string.Join(",", companyList.Select(c => $"'{c.ContactEmail ?? c.CompanyName.Replace(" ", "")[..10]}'").ToList())
-                + ")";
-            List<UserModel> userList = await _sqlQueryHelper.GetListAsync<UserModel>(sql);
-            companyList = companyList.Select(company =>
+            try
             {
-                company.Users = userList.Where(u => u.UserName == (company.ContactEmail ?? company.CompanyName.Replace(" ", "")[..10])).ToList();
-                return company;
-            })
-            .ToList();
+                string sql = "select * from Companies c with(nolock)";
+                List<CompanyModel> companyList = await _sqlQueryHelper.GetListAsync<CompanyModel>(sql);
 
-            return Ok(companyList);
+                if (companyList.Count == 0)
+                {
+                    return Success("Companies retrieved successfully.", companyList);
+                }
+
+                sql = "select * from Users u with(nolock) where Email in ("
+                    + string.Join(",", companyList.Select(c => $"'{c.ContactEmail ?? c.CompanyName.Replace(" ", "")[..10]}'").ToList())
+                    + ")";
+                List<UserModel> userList = await _sqlQueryHelper.GetListAsync<UserModel>(sql);
+                companyList = companyList.Select(company =>
+                {
+                    company.Users = userList.Where(u => u.UserName == (company.ContactEmail ?? company.CompanyName.Replace(" ", "")[..10])).ToList();
+                    return company;
+                })
+                .ToList();
+
+                return Success("Companies retrieved successfully.", companyList);
+            }
+            catch (Exception ex)
+            {
+                return Failure($"Error - {ex.Message}");
+            }
         }
 
         [HttpPost]
@@ -42,20 +54,12 @@ namespace API.Controllers
             {
                 if (requestData == null)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Request data is null",
-                    });
+                    return Failure("Request data is null");
                 }
 
                 if (string.IsNullOrEmpty(requestData.Data))
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Request data is null",
-                    });
+                    return Failure("Request data is null");
                 }
 
                 CompanyModel? company = System.Text.Json.JsonSerializer.Deserialize<CompanyModel>(requestData.Data, new System.Text.Json.JsonSerializerOptions
@@ -65,11 +69,7 @@ namespace API.Controllers
                 });
                 if (company == null)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Invalid company data.",
-                    });
+                    return Failure("Invalid company data.");
                 }
 
                 if (requestData.CompanyLogo != null)
@@ -98,22 +98,14 @@ namespace API.Controllers
 
                 if (companyList.Any())
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Company already registered!",
-                    });
+                    return Failure("Company already registered!");
                 }
                 sql = "select * from Users with(nolock) where Email = @ContactEmail";
                 List<UserModel> userList = await _sqlQueryHelper.GetListAsync<UserModel>(sql, new { company.ContactEmail });
 
                 if (userList.Any())
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Email Id Registered in Users!",
-                    });
+                    return Failure("Email Id Registered in Users!");
                 }
 
                 UserModel user = new()
@@ -140,12 +132,7 @@ SELECT CAST(SCOPE_IDENTITY() as bigint);
                 long? newUserId = await _sqlQueryHelper.GetSingleAsync<long>(userSql, user);
                 if (newUserId == null)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Failed to create user.",
-                        Data = user
-                    });
+                    return Failure("Failed to create user.", user);
                 }
 
                 company.UserId = (long)newUserId;
@@ -158,21 +145,11 @@ values (@UserId, @CompanyName, @Industry, @CompanySize, @Website, @Description, 
 
                 company.Users = [user];
 
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Success,
-                    Message = "Company Resgistration Completed!",
-                    Data = company
-                });
+                return Success("Company Resgistration Completed!", company);
             }
             catch (Exception ex)
             {
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Failure,
-                    Message = ex.Message,
-                    Data = ex
-                });
+                return Failure($"Error - {ex.Message}");
             }
         }
     }

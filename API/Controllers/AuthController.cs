@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+    public class AuthController : BaseApiController
     {
         private readonly ISqlQueryHelper _sqlQueryHelper;
 
@@ -17,67 +16,50 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<string> DropAndCreateTables()
+        public ActionResult<ResponseModel> DropAndCreateTables()
         {
-            _ = _sqlQueryHelper.Execute(InitialQuery.DropAndCreateTables); // Test database connection
-            return Ok("Auth endpoint is working!");
+            try
+            {
+                _ = _sqlQueryHelper.Execute(InitialQuery.DropAndCreateTables);
+                return Success("Auth endpoint is working.");
+            }
+            catch (Exception ex)
+            {
+                return Failure($"Error - {ex.Message}");
+            }
         }
 
         [HttpPost]
-        public async Task<ActionResult> Login(UserModel? inputUser)
+        public async Task<ActionResult<ResponseModel>> Login(UserModel? inputUser)
         {
             try
             {
                 if (inputUser == null)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Invalid Input",
-                    });
+                    return Failure("Invalid Input");
                 }
                 if (string.IsNullOrEmpty(inputUser.Email) || string.IsNullOrEmpty(inputUser.PasswordHash))
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "UserName and Password are required!",
-                    });
+                    return Failure("UserName and Password are required!");
                 }
 
                 string sql = "select top 1 * from Users with(nolock) where email = @Email";
                 UserModel? user = await _sqlQueryHelper.GetSingleAsync<UserModel>(sql, new { inputUser.Email });
                 if (user == null)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "User not found!",
-                    });
+                    return Failure("User not found!");
                 }
                 if (user.PasswordHash != inputUser.PasswordHash)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Invalid Password!",
-                    });
+                    return Failure("Invalid Password!");
                 }
                 if (user.Status != UserStatus.Active)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "User is not active",
-                    });
+                    return Failure("User is not active");
                 }
                 if (user.IsDeleted)
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "User is deleted",
-                    });
+                    return Failure("User is deleted");
                 }
 
                 if (user.Role == UserRole.Student)
@@ -86,11 +68,7 @@ namespace API.Controllers
                     StudentModel? student = await _sqlQueryHelper.GetSingleAsync<StudentModel>(sql, new { user.UserId });
                     if (student == null)
                     {
-                        return Ok(new ResponseModel
-                        {
-                            Status = ResponseStatus.Failure,
-                            Message = "Student Not Found!",
-                        });
+                        return Failure("Student Not Found!");
                     }
                     user.Student = student;
                 }
@@ -104,38 +82,20 @@ namespace API.Controllers
                     CompanyModel? company = await _sqlQueryHelper.GetSingleAsync<CompanyModel>(sql, new { user.UserId });
                     if (company == null)
                     {
-                        return Ok(new ResponseModel
-                        {
-                            Status = ResponseStatus.Failure,
-                            Message = "Company Not Found!",
-                        });
+                        return Failure("Company Not Found!");
                     }
                     user.Company = company;
                 }
                 else
                 {
-                    return Ok(new ResponseModel
-                    {
-                        Status = ResponseStatus.Failure,
-                        Message = "Role Not Assigned!",
-                    });
+                    return Failure("Role Not Assigned!");
                 }
 
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Success,
-                    Message = $"Logged In Successfully!",
-                    Data = user
-                });
+                return Success("Logged In Successfully!", user);
             }
             catch (Exception ex)
             {
-                return Ok(new ResponseModel
-                {
-                    Status = ResponseStatus.Failure,
-                    Message = $"Error - {ex.Message}",
-                    Data = ex
-                });
+                return Failure($"Error - {ex.Message}");
             }
         }
     }

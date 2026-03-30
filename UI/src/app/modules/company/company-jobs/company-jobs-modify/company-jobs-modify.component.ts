@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CompanyService } from '../../services/company.service';
-import { JobModel, ResponseModel } from '../../../../shared';
+import { isSuccessResponse, JobModel, ResponseModel } from '../../../../shared';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { GlobalService } from '../../../../core';
 
@@ -184,7 +184,7 @@ export class CompanyJobModifyComponent implements OnInit {
 
     request$.subscribe({
       next: (response: ResponseModel) => {
-        if (response?.status == "0") {
+        if (isSuccessResponse(response)) {
           this.globalService.showSuccessMessage(response.message);
           this.backToList();
         } else {

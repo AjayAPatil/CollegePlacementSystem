@@ -13,42 +13,42 @@ export class StudentService {
 
   constructor(private http: HttpClient) { }
 
-  getStudents() {
-    return this.http.get<Array<StudentModel>>(`${this.apiUrl}/student`);
+  getStudents(): Observable<ResponseModel<StudentModel[]>> {
+    return this.http.get<ResponseModel<StudentModel[]>>(`${this.apiUrl}/student`);
   }
-  getJobs(page: number, pageSize: number, studentId?: number): Observable<ResponseModel & { data: PagedResult<JobFeedItem> }> {
+  getJobs(page: number, pageSize: number, studentId?: number): Observable<ResponseModel<PagedResult<JobFeedItem>>> {
     const studentQuery = studentId ? `?studentId=${studentId}` : '';
-    return this.http.get<ResponseModel & { data: PagedResult<JobFeedItem> }>(`${this.apiUrl}/jobs/${page}/${pageSize}${studentQuery}`);
+    return this.http.get<ResponseModel<PagedResult<JobFeedItem>>>(`${this.apiUrl}/jobs/${page}/${pageSize}${studentQuery}`);
   }
 
-  getJobDetails(jobId: number): Observable<ResponseModel & { data: JobDetailModel }> {
-    return this.http.get<ResponseModel & { data: JobDetailModel }>(`${this.apiUrl}/jobs/details/${jobId}`);
+  getJobDetails(jobId: number): Observable<ResponseModel<JobDetailModel>> {
+    return this.http.get<ResponseModel<JobDetailModel>>(`${this.apiUrl}/jobs/details/${jobId}`);
   }
 
   applyForJob(jobId: number, requestData: JobApplyRequestModel): Observable<ResponseModel> {
     return this.http.post<ResponseModel>(`${this.apiUrl}/jobs/${jobId}/apply`, requestData);
   }
 
-  getStudentById(studentId: number) {
-    return this.http.get<StudentModel>(`${this.apiUrl}/student/${studentId}`);
+  getStudentById(studentId: number): Observable<ResponseModel<StudentModel>> {
+    return this.http.get<ResponseModel<StudentModel>>(`${this.apiUrl}/student/${studentId}`);
   }
 
-  getCompanies() {
-    return this.http.get<Array<CompanyModel>>(`${this.apiUrl}/company`);
+  getCompanies(): Observable<ResponseModel<CompanyModel[]>> {
+    return this.http.get<ResponseModel<CompanyModel[]>>(`${this.apiUrl}/company`);
   }
-  saveCompany(formData: FormData) {
-    return this.http.post<ResponseModel>(`${this.apiUrl}/company`, formData);
+  saveCompany(formData: FormData): Observable<ResponseModel<CompanyModel>> {
+    return this.http.post<ResponseModel<CompanyModel>>(`${this.apiUrl}/company`, formData);
   }
-  saveJobs(formData: FormData) {
-    return this.http.post<ResponseModel>(`${this.apiUrl}/jobs`, formData);
+  saveJobs(formData: FormData): Observable<ResponseModel<JobModel>> {
+    return this.http.post<ResponseModel<JobModel>>(`${this.apiUrl}/jobs`, formData);
   }
-  updateJob(jobId: number, formData: FormData) {
-    return this.http.put<ResponseModel>(`${this.apiUrl}/jobs/${jobId}`, formData);
+  updateJob(jobId: number, formData: FormData): Observable<ResponseModel<JobModel>> {
+    return this.http.put<ResponseModel<JobModel>>(`${this.apiUrl}/jobs/${jobId}`, formData);
   }
-  updateJobStatus(jobId: number, status: string) {
+  updateJobStatus(jobId: number, status: string): Observable<ResponseModel> {
     return this.http.patch<ResponseModel>(`${this.apiUrl}/jobs/${jobId}/status`, { status });
   }
-  deleteJob(jobId: number) {
+  deleteJob(jobId: number): Observable<ResponseModel> {
     return this.http.delete<ResponseModel>(`${this.apiUrl}/jobs/${jobId}`);
   }
 }

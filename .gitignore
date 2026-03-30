@@ -337,3 +337,4 @@ API/Uploads
 /.dotnet
 /API/bin_verify
 /.appdata/NuGet
+/.appdata/.dotnet

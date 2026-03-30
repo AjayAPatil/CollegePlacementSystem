@@ -25,6 +25,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatStepperModule } from '@angular/material/stepper';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTimepickerModule } from '@angular/material/timepicker';
 
 // ✅ Datepicker (CLEAN)
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -64,6 +65,7 @@ import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialo
     MatRadioModule,
     MatStepperModule,
     MatTooltipModule,
+    MatTimepickerModule,
 
     // Forms
     ReactiveFormsModule,
@@ -101,6 +103,7 @@ import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialo
     MatRadioModule,
     MatStepperModule,
     MatTooltipModule,
+    MatTimepickerModule,
 
     // Forms
     ReactiveFormsModule,
@@ -117,4 +120,4 @@ import { RegisterTypeDialog } from '../modules/auth/register/register-type.dialo
   ],
   providers: []
 })
-export class SharedModule {}
+export class SharedModule { }

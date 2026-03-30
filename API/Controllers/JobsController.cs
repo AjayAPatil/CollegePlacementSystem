@@ -8,8 +8,7 @@ using System.Text.Json.Serialization;
 namespace API.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class JobsController : ControllerBase
+    public class JobsController : BaseApiController
     {
         private readonly ISqlQueryHelper _sqlQueryHelper;
 
@@ -19,23 +18,30 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<JobModel>>> Get()
+        public async Task<ActionResult<ResponseModel>> Get()
         {
-            string sql = "SELECT * FROM Jobs WITH (NOLOCK) ORDER BY CreatedAt DESC";
-            List<JobModel> jobList = await _sqlQueryHelper.GetListAsync<JobModel>(sql);
-
-            for (int i = 0; i < jobList.Count; i++)
+            try
             {
-                JobModel job = jobList[i];
-                job.Company = await _sqlQueryHelper.GetSingleAsync<CompanyModel>(
-                    "SELECT * FROM Companies WITH (NOLOCK) WHERE Id = @Id",
-                    new { Id = job.CompanyId });
-                job.Creator = await _sqlQueryHelper.GetSingleAsync<UserModel>(
-                    "SELECT * FROM Users WITH (NOLOCK) WHERE UserId = @UserId",
-                    new { UserId = job.CreatedBy });
-            }
+                string sql = "SELECT * FROM Jobs WITH (NOLOCK) ORDER BY CreatedAt DESC";
+                List<JobModel> jobList = await _sqlQueryHelper.GetListAsync<JobModel>(sql);
 
-            return Ok(jobList);
+                for (int i = 0; i < jobList.Count; i++)
+                {
+                    JobModel job = jobList[i];
+                    job.Company = await _sqlQueryHelper.GetSingleAsync<CompanyModel>(
+                        "SELECT * FROM Companies WITH (NOLOCK) WHERE Id = @Id",
+                        new { Id = job.CompanyId });
+                    job.Creator = await _sqlQueryHelper.GetSingleAsync<UserModel>(
+                        "SELECT * FROM Users WITH (NOLOCK) WHERE UserId = @UserId",
+                        new { UserId = job.CreatedBy });
+                }
+
+                return Success("Jobs retrieved successfully.", jobList);
+            }
+            catch (Exception ex)
+            {
+                return Failure($"Error - {ex.Message}");
+            }
         }
 
         [HttpGet("{page}/{pageSize}")]
@@ -877,24 +883,5 @@ END";
             await _sqlQueryHelper.ExecuteAsync(sql);
         }
 
-        private ActionResult<ResponseModel> Success(string message, object? data = null)
-        {
-            return Ok(new ResponseModel
-            {
-                Status = ResponseStatus.Success,
-                Message = message,
-                Data = data
-            });
-        }
-
-        private ActionResult<ResponseModel> Failure(string message, object? data = null)
-        {
-            return Ok(new ResponseModel
-            {
-                Status = ResponseStatus.Failure,
-                Message = message,
-                Data = data
-            });
-        }
     }
 }

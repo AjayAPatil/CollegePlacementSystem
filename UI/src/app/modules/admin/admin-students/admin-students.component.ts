@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../services/admin.service';
-import { StudentModel } from '../../../shared';
+import { isSuccessResponse, ResponseModel, StudentModel } from '../../../shared';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
@@ -32,8 +32,13 @@ export class AdminStudentsComponent implements OnInit {
 
   private getStudentList() {
     this.adminService.getStudents().subscribe({
-      next: (value: StudentModel[]) => {
-        this.studentDataSource.data = value.map((student) => ({
+      next: (response: ResponseModel<StudentModel[]>) => {
+        if (!isSuccessResponse(response)) {
+          this.studentDataSource.data = [];
+          return;
+        }
+
+        this.studentDataSource.data = (response.data ?? []).map((student) => ({
           ...student,
           user: student.user
             ? {
