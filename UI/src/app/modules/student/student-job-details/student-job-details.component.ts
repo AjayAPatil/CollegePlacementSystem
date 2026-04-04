@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GlobalService } from '../../../core';
-import { JobDetailModel } from '../../../shared';
+import { JobDetailModel, resolveAssetUrl } from '../../../shared';
 import { StudentService } from '../services/student.service';
 
 @Component({
@@ -66,6 +66,10 @@ export class StudentJobDetailsComponent implements OnInit {
         this.globalService.showErrorMessage('Failed to submit job application.');
       }
     });
+  }
+
+  get companyLogoUrl(): string {
+    return resolveAssetUrl(this.jobDetails?.logoUrl);
   }
 
   private loadJobDetails(): void {

@@ -124,6 +124,7 @@ export interface CompanyJobApplicationListItem {
   joiningDate?: Date | string;
   updatedAt?: Date | string;
   jobTitle: string;
+  studentProfileImagePath?: string;
 }
 
 export interface CompanyJobApplicationDetail extends CompanyJobApplicationListItem {

@@ -36,3 +36,18 @@
   margin-top: 20px;
   margin-bottom: 20px;
 }
+
+.company-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.company-logo.fallback {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: #fff;
+  font-weight: 700;
+}

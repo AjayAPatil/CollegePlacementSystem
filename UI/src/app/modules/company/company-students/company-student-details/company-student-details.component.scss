@@ -19,6 +19,30 @@
   margin: 12px 0 8px;
 }
 
+.hero-student {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.hero-student-image {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.hero-student-fallback {
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, #0f766e, #14b8a6);
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
 .eyebrow {
   margin: 16px 0 0;
   text-transform: uppercase;

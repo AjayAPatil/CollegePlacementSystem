@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CompanyService } from '../services/company.service';
-import { CompanyJobApplicationListItem } from '../../../shared';
+import { CompanyJobApplicationListItem, resolveAssetUrl } from '../../../shared';
 import { MatTableDataSource } from '@angular/material/table';
 import { GlobalService } from '../../../core';
 
@@ -44,6 +44,10 @@ export class CompanyStudentsComponent implements OnInit {
       default:
         return 'Applied';
     }
+  }
+
+  getStudentProfileImage(application: CompanyJobApplicationListItem): string {
+    return resolveAssetUrl(application.studentProfileImagePath);
   }
 
   private getStudentList(): void {
@@ -91,7 +95,8 @@ export class CompanyStudentsComponent implements OnInit {
       interviewNotes: item?.interviewNotes ?? item?.InterviewNotes,
       decisionAt: item?.decisionAt ?? item?.DecisionAt,
       updatedAt: item?.updatedAt ?? item?.UpdatedAt,
-      jobTitle: item?.jobTitle ?? item?.JobTitle ?? ''
+      jobTitle: item?.jobTitle ?? item?.JobTitle ?? '',
+      studentProfileImagePath: item?.studentProfileImagePath ?? item?.StudentProfileImagePath
     };
   }
 }

@@ -11,6 +11,21 @@
       <p>Loading profile...</p>
     </mat-card>
   } @else {
+    <mat-card class="profile-hero-card">
+      <div class="profile-hero-media">
+        @if (profileImageUrl) {
+          <img [src]="profileImageUrl" [alt]="userInfo.userName + ' profile image'" class="profile-hero-image">
+        } @else {
+          <div class="profile-hero-fallback">{{ (userInfo.userName || 'U').charAt(0) }}</div>
+        }
+      </div>
+      <div class="profile-hero-copy">
+        <h2>{{ userInfo.userName }}</h2>
+        <p>{{ userInfo.email }}</p>
+        <span>{{ userInfo.role }}</span>
+      </div>
+    </mat-card>
+
     <div class="profile-grid">
       <mat-card class="profile-card">
         <h2>Profile Details</h2>

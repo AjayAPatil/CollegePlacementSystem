@@ -18,12 +18,21 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<ResponseModel>> Get()
+        public async Task<ActionResult<ResponseModel>> Get([FromQuery] long? companyId = null)
         {
             try
             {
-                string sql = "SELECT * FROM Jobs WITH (NOLOCK) ORDER BY CreatedAt DESC";
-                List<JobModel> jobList = await _sqlQueryHelper.GetListAsync<JobModel>(sql);
+                await ExpirePastDueJobsAsync();
+
+                string sql = @"
+SELECT *
+FROM Jobs WITH (NOLOCK)
+WHERE (@CompanyId IS NULL OR CompanyId = @CompanyId)
+ORDER BY CreatedAt DESC";
+
+                List<JobModel> jobList = await _sqlQueryHelper.GetListAsync<JobModel>(
+                    sql,
+                    new { CompanyId = companyId });
 
                 for (int i = 0; i < jobList.Count; i++)
                 {
@@ -50,15 +59,18 @@ namespace API.Controllers
             try
             {
                 await EnsureJobApplicationsTableAsync();
+                await ExpirePastDueJobsAsync();
 
                 page = page < 1 ? 1 : page;
                 pageSize = pageSize < 1 ? 10 : Math.Min(pageSize, 50);
                 int offset = (page - 1) * pageSize;
+                DateTime currentDate = DateTime.UtcNow.Date;
 
                 const string countSql = @"
 SELECT COUNT(1)
 FROM Jobs j
-WHERE j.Status = 'published'";
+WHERE j.Status = 'published'
+  AND (j.ExpiryDate IS NULL OR j.ExpiryDate >= @CurrentDate)";
 
                 string sql = @"
         SELECT 
@@ -75,14 +87,15 @@ WHERE j.Status = 'published'";
         LEFT JOIN Users u ON j.CreatedBy = u.UserId
         LEFT JOIN JobApplications ja ON j.JobId = ja.JobId AND (@StudentId IS NOT NULL AND ja.StudentId = @StudentId)
         WHERE j.Status = 'published'
+          AND (j.ExpiryDate IS NULL OR j.ExpiryDate >= @CurrentDate)
 
         ORDER BY j.CreatedAt DESC
         OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
 
-                int totalCount = await _sqlQueryHelper.GetSingleAsync<int>(countSql);
+                int totalCount = await _sqlQueryHelper.GetSingleAsync<int>(countSql, new { CurrentDate = currentDate });
                 var jobs = await _sqlQueryHelper.GetListAsync<JobViewModel>(
                     sql,
-                    new { Offset = offset, PageSize = pageSize, StudentId = studentId });
+                    new { Offset = offset, PageSize = pageSize, StudentId = studentId, CurrentDate = currentDate });
 
                 var pagedResult = new PagedResult<JobViewModel>
                 {
@@ -116,6 +129,8 @@ WHERE j.Status = 'published'";
         {
             try
             {
+                await ExpirePastDueJobsAsync(jobId);
+
                 string sql = @"
 SELECT
     j.*,
@@ -165,6 +180,7 @@ WHERE j.JobId = @JobId";
                 }
 
                 await EnsureJobApplicationsTableAsync();
+                await ExpirePastDueJobsAsync(jobId);
 
                 JobDetailViewModel? job = await _sqlQueryHelper.GetSingleAsync<JobDetailViewModel>(
                     @"SELECT j.JobId, j.CompanyId, j.Status, j.JobTitle
@@ -269,9 +285,11 @@ SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
                 const string sql = @"
 SELECT
     ja.*,
-    j.JobTitle
+    j.JobTitle,
+    u.ProfileImagePath AS StudentProfileImagePath
 FROM JobApplications ja
 INNER JOIN Jobs j ON ja.JobId = j.JobId
+INNER JOIN Users u ON ja.StudentUserId = u.UserId
 WHERE ja.CompanyId = @CompanyId
 ORDER BY ja.AppliedAt DESC";
 
@@ -314,10 +332,12 @@ SELECT
     s.PassingYear,
     s.CGPA,
     s.Skills,
-    s.ResumeFilePath AS ResumeUrl
+    s.ResumeFilePath AS ResumeUrl,
+    u.ProfileImagePath AS StudentProfileImagePath
 FROM JobApplications ja
 INNER JOIN Jobs j ON ja.JobId = j.JobId
 INNER JOIN Students s ON ja.StudentId = s.Id
+INNER JOIN Users u ON ja.StudentUserId = u.UserId
 WHERE ja.ApplicationId = @ApplicationId AND ja.CompanyId = @CompanyId";
 
                 CompanyJobApplicationDetailModel? application =
@@ -864,15 +884,36 @@ SELECT
     s.PassingYear,
     s.CGPA,
     s.Skills,
-    s.ResumeFilePath AS ResumeUrl
+    s.ResumeFilePath AS ResumeUrl,
+    u.ProfileImagePath AS StudentProfileImagePath
 FROM JobApplications ja
 INNER JOIN Jobs j ON ja.JobId = j.JobId
 INNER JOIN Students s ON ja.StudentId = s.Id
+INNER JOIN Users u ON ja.StudentUserId = u.UserId
 WHERE ja.ApplicationId = @ApplicationId AND ja.CompanyId = @CompanyId";
 
             return await _sqlQueryHelper.GetSingleAsync<CompanyJobApplicationDetailModel>(
                 sql,
                 new { ApplicationId = applicationId, CompanyId = companyId });
+        }
+
+        private async Task ExpirePastDueJobsAsync(long? jobId = null)
+        {
+            await _sqlQueryHelper.ExecuteAsync(@"
+UPDATE Jobs
+SET Status = @ExpiredStatus,
+    UpdatedAt = @UpdatedAt
+WHERE Status = @PublishedStatus
+  AND ExpiryDate IS NOT NULL
+  AND ExpiryDate < @CurrentDate
+  AND (@JobId IS NULL OR JobId = @JobId)", new
+            {
+                ExpiredStatus = JobStatus.Expired,
+                PublishedStatus = JobStatus.Published,
+                UpdatedAt = DateTime.UtcNow,
+                CurrentDate = DateTime.UtcNow.Date,
+                JobId = jobId
+            });
         }
 
         private async Task EnsureJobApplicationsTableAsync()

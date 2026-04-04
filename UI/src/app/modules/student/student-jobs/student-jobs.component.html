@@ -11,7 +11,11 @@
     <mat-card class="job-card" *ngFor="let job of jobs; trackBy: trackByJobId">
       <mat-card-header>
         <div mat-card-avatar class="job-avatar">
-          {{ (job.companyName || 'J').charAt(0) }}
+          @if (getCompanyLogo(job)) {
+            <img [src]="getCompanyLogo(job)" [alt]="job.companyName + ' logo'" class="job-avatar-image">
+          } @else {
+            {{ (job.companyName || 'J').charAt(0) }}
+          }
         </div>
         <mat-card-title>{{ job.jobTitle }}</mat-card-title>
         <mat-card-subtitle>

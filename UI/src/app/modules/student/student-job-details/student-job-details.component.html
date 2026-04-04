@@ -65,7 +65,13 @@
       </mat-card-header>
       <mat-card-content>
         <div class="company-brand">
-          <div class="company-avatar">{{ (job.companyName || 'C').charAt(0) }}</div>
+          <div class="company-avatar">
+            @if (companyLogoUrl) {
+              <img [src]="companyLogoUrl" [alt]="job.companyName + ' logo'" class="company-avatar-image">
+            } @else {
+              {{ (job.companyName || 'C').charAt(0) }}
+            }
+          </div>
           <div>
             <h3>{{ job.companyName }}</h3>
             <p>{{ job.companyIndustry || 'Industry not specified' }}</p>

@@ -28,7 +28,14 @@ export class CompanyJobsComponent implements OnInit {
   }
 
   public getJobList() {
-    this.companyService.getJobs().subscribe({
+    const companyId = this.globalService.userInfo.company?.id ?? 0;
+    if (!companyId) {
+      this.jobDataSource.data = [];
+      this.globalService.showErrorMessage('Company information is missing.');
+      return;
+    }
+
+    this.companyService.getJobs(companyId).subscribe({
       next: (response: ResponseModel<JobModel[]>) => {
         if (!isSuccessResponse(response)) {
           this.jobDataSource.data = [];

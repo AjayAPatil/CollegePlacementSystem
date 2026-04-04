@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { GlobalService } from '../../../core';
 import { StudentService } from '../services/student.service';
-import { isSuccessResponse, JobFeedItem, PagedResult, ResponseModel } from '../../../shared';
+import { isSuccessResponse, JobFeedItem, PagedResult, resolveAssetUrl, ResponseModel } from '../../../shared';
 
 @Component({
   standalone: false,
@@ -41,6 +41,10 @@ export class StudentJobsComponent implements OnInit {
 
   trackByJobId(_index: number, job: JobFeedItem): number {
     return job.jobId;
+  }
+
+  getCompanyLogo(job: JobFeedItem): string {
+    return resolveAssetUrl(job.logoUrl);
   }
 
   private loadJobs(): void {

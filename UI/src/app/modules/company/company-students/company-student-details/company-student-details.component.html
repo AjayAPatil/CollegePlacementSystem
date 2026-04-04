@@ -3,8 +3,17 @@
     <div class="hero-copy">
       <button mat-stroked-button type="button" (click)="goBack()">Back to Applicants</button>
       <p class="eyebrow">Applicant Details</p>
-      <h1>{{ application.studentName }}</h1>
-      <p class="hero-meta">{{ application.jobTitle }} | {{ application.department || 'Department not provided' }}</p>
+      <div class="hero-student">
+        @if (studentProfileImageUrl) {
+          <img [src]="studentProfileImageUrl" [alt]="application.studentName + ' profile image'" class="hero-student-image">
+        } @else {
+          <div class="hero-student-image hero-student-fallback">{{ (application.studentName || 'S').charAt(0) }}</div>
+        }
+        <div>
+          <h1>{{ application.studentName }}</h1>
+          <p class="hero-meta">{{ application.jobTitle }} | {{ application.department || 'Department not provided' }}</p>
+        </div>
+      </div>
     </div>
 
     <div class="hero-status">

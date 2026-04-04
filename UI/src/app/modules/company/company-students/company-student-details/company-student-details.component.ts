@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GlobalService } from '../../../../core';
-import { CompanyJobApplicationDetail } from '../../../../shared';
+import { CompanyJobApplicationDetail, resolveAssetUrl } from '../../../../shared';
 import { CompanyService } from '../../services/company.service';
 
 @Component({
@@ -163,6 +163,10 @@ export class CompanyStudentDetailsComponent implements OnInit {
     return status === 'accepted' || status === 'rejected';
   }
 
+  get studentProfileImageUrl(): string {
+    return resolveAssetUrl(this.applicationDetails?.studentProfileImagePath);
+  }
+
   private loadApplicationDetails(): void {
     this.loading = true;
     this.companyService.getApplicationDetails(this.applicationId, this.companyId).subscribe({
@@ -298,7 +302,8 @@ export class CompanyStudentDetailsComponent implements OnInit {
       workMode: item?.workMode ?? item?.WorkMode ?? '',
       location: item?.location ?? item?.Location ?? '',
       qualifications: item?.qualifications ?? item?.Qualifications,
-      requiredSkills: item?.requiredSkills ?? item?.RequiredSkills
+      requiredSkills: item?.requiredSkills ?? item?.RequiredSkills,
+      studentProfileImagePath: item?.studentProfileImagePath ?? item?.StudentProfileImagePath
     };
     application.appliedAt = application.appliedAt ? this.convertToIST(application.appliedAt) : application.appliedAt;
     application.decisionAt = application.decisionAt ? this.convertToIST(application.decisionAt) : application.decisionAt;

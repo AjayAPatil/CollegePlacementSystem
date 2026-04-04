@@ -97,6 +97,7 @@ namespace API.Model
     public class CompanyJobApplicationListItemModel : JobApplicationModel
     {
         public string JobTitle { get; set; } = string.Empty;
+        public string? StudentProfileImagePath { get; set; }
     }
 
     public class StudentJobApplicationListItemModel : JobApplicationModel

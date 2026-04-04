@@ -10,6 +10,7 @@ export class UserModel {
     passwordHash: string = '';
     role: string = ''; // Admin, Student, Company
     status: string = 'Active'; // Active, Pending, Rejected
+    profileImagePath?: string;
     profilePhoto?: File | null = null;
 
     // Contact Info

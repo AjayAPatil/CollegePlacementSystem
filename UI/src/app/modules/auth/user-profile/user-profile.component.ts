@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { GlobalService } from '../../../core';
-import { CompanyModel, isSuccessResponse, ResponseModel, StudentModel, UserModel } from '../../../shared';
+import { CompanyModel, isSuccessResponse, resolveAssetUrl, ResponseModel, StudentModel, UserModel } from '../../../shared';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -101,6 +101,10 @@ export class UserProfileComponent implements OnInit {
     return this.passwordForm.get('verifyNewPassword');
   }
 
+  get profileImageUrl(): string {
+    return resolveAssetUrl(this.userInfo.profileImagePath);
+  }
+
   loadProfile() {
     if (!this.userInfo.userId) {
       this.globalService.showErrorMessage('User information not found.');
@@ -117,6 +121,7 @@ export class UserProfileComponent implements OnInit {
         }
 
         const profile = response.data as UserModel;
+        profile.profileImagePath = profile.profileImagePath ?? (profile as any).ProfileImagePath;
         this.userInfo = profile;
         this.patchProfile(profile);
       },
@@ -145,6 +150,7 @@ export class UserProfileComponent implements OnInit {
         }
 
         const savedUser = response.data as UserModel;
+        savedUser.profileImagePath = savedUser.profileImagePath ?? (savedUser as any).ProfileImagePath;
         savedUser.isLoggedIn = true;
         this.globalService.showSuccessMessage(response.message);
         this.globalService.setUserInfo(savedUser);

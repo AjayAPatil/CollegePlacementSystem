@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../services/admin.service';
-import { CompanyModel, isSuccessResponse, ResponseModel } from '../../../shared';
+import { CompanyModel, isSuccessResponse, resolveAssetUrl, ResponseModel } from '../../../shared';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
@@ -11,7 +11,7 @@ import { MatTableDataSource } from '@angular/material/table';
 })
 export class AdminCompaniesComponent implements OnInit {
 
-  studentTblColumns: string[] = ['companyName', 'contactEmail' ,'contactPhone', 'hrName'];
+  studentTblColumns: string[] = ['logo', 'companyName', 'contactEmail' ,'contactPhone', 'hrName'];
   studentDataSource = new MatTableDataSource<CompanyModel>();
   activity: string = 'list'; //list, add, edit, view
 
@@ -19,6 +19,10 @@ export class AdminCompaniesComponent implements OnInit {
   }
   ngOnInit(): void {
     this.getCompanyList();
+  }
+
+  getCompanyLogo(company: CompanyModel): string {
+    return resolveAssetUrl(company.logoUrl);
   }
 
   public getCompanyList() {

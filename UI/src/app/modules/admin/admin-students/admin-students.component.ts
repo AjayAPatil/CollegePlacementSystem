@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AdminService } from '../services/admin.service';
-import { isSuccessResponse, ResponseModel, StudentModel } from '../../../shared';
+import { isSuccessResponse, resolveAssetUrl, ResponseModel, StudentModel } from '../../../shared';
 import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
@@ -12,6 +12,7 @@ import { MatTableDataSource } from '@angular/material/table';
 export class AdminStudentsComponent implements OnInit {
 
   studentTblColumns: string[] = [
+    'profileImage',
     'firstName',
     'lastName',
     'enrollmentNo',
@@ -30,6 +31,10 @@ export class AdminStudentsComponent implements OnInit {
     this.getStudentList();
   }
 
+  getStudentProfileImage(student: StudentModel): string {
+    return resolveAssetUrl(student.user?.profileImagePath ?? (student.user as any)?.ProfileImagePath);
+  }
+
   private getStudentList() {
     this.adminService.getStudents().subscribe({
       next: (response: ResponseModel<StudentModel[]>) => {
@@ -43,6 +48,7 @@ export class AdminStudentsComponent implements OnInit {
           user: student.user
             ? {
                 ...student.user,
+                profileImagePath: student.user.profileImagePath ?? (student.user as any).ProfileImagePath,
                 passwordHash: '',
               }
             : student.user,

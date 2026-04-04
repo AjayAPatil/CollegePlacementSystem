@@ -1,4 +1,5 @@
 using API.Common;
+using API.Constants;
 using API.Model;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
@@ -106,6 +107,8 @@ WHERE UserId = @UserId";
                 }
 
                 await EnsureJobApplicationsTableAsync();
+                await ExpirePastDueJobsAsync();
+                DateTime currentDate = DateTime.UtcNow.Date;
 
                 StudentModel? student = await _sqlQueryHelper.GetSingleAsync<StudentModel>(@"
 SELECT TOP 1 *
@@ -166,7 +169,7 @@ SELECT
     ExpiryDate
 FROM Jobs WITH(NOLOCK)
 WHERE Status = 'published'
-  AND (ExpiryDate IS NULL OR ExpiryDate >= @CurrentDate)", new { CurrentDate = DateTime.UtcNow });
+  AND (ExpiryDate IS NULL OR ExpiryDate >= @CurrentDate)", new { CurrentDate = currentDate });
 
                 int appliedJobsCount = await _sqlQueryHelper.GetSingleAsync<int>(@"
 SELECT COUNT(1)
@@ -190,7 +193,7 @@ WHERE j.Status = 'published'
       FROM JobApplications ja WITH(NOLOCK)
       WHERE ja.JobId = j.JobId
         AND ja.StudentId = @StudentId
-  )", new { StudentId = studentId, CurrentDate = DateTime.UtcNow });
+  )", new { StudentId = studentId, CurrentDate = currentDate });
 
                 StudentDashboardModel dashboard = new()
                 {
@@ -315,6 +318,23 @@ ORDER BY ja.AppliedAt DESC, ja.ApplicationId DESC";
             return Regex.Split(skills, @"[,/|]+")
                 .Select(x => x.Trim())
                 .Where(x => !string.IsNullOrWhiteSpace(x));
+        }
+
+        private async Task ExpirePastDueJobsAsync()
+        {
+            await _sqlQueryHelper.ExecuteAsync(@"
+UPDATE Jobs
+SET Status = @ExpiredStatus,
+    UpdatedAt = @UpdatedAt
+WHERE Status = @PublishedStatus
+  AND ExpiryDate IS NOT NULL
+  AND ExpiryDate < @CurrentDate", new
+            {
+                ExpiredStatus = JobStatus.Expired,
+                PublishedStatus = JobStatus.Published,
+                UpdatedAt = DateTime.UtcNow,
+                CurrentDate = DateTime.UtcNow.Date
+            });
         }
 
         private async Task EnsureJobApplicationsTableAsync()

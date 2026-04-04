@@ -25,8 +25,9 @@ export class CompanyService {
   getStudents(): Observable<ResponseModel<StudentModel[]>> {
     return this.http.get<ResponseModel<StudentModel[]>>(`${this.apiUrl}/student`);
   }
-  getJobs(): Observable<ResponseModel<JobModel[]>> {
-    return this.http.get<ResponseModel<JobModel[]>>(`${this.apiUrl}/jobs`);
+  getJobs(companyId?: number): Observable<ResponseModel<JobModel[]>> {
+    const query = companyId ? `?companyId=${companyId}` : '';
+    return this.http.get<ResponseModel<JobModel[]>>(`${this.apiUrl}/jobs${query}`);
   }
 
   getStudentById(studentId: number): Observable<ResponseModel<StudentModel>> {
