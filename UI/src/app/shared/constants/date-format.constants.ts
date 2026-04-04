@@ -1,11 +1,15 @@
 export const DATE_FORMATS = {
   parse: {
-    dateInput: 'DD/MMM/YYYY HH:mm',   // <-- add time
+    dateInput: 'DD/MM/YYYY',
+    timeInput: 'HH:mm',              // REQUIRED
   },
   display: {
-    dateInput: 'DD/MMM/YYYY HH:mm',   // <-- add time
+    dateInput: 'DD/MM/YYYY',
+    timeInput: 'HH:mm',              // REQUIRED
+    timeOptionLabel: 'HH:mm',        // REQUIRED
+
     monthYearLabel: 'MMM YYYY',
-    dateA11yLabel: 'DD/MMM/YYYY HH:mm',
+    dateA11yLabel: 'DD/MM/YYYY',
     monthYearA11yLabel: 'MMMM YYYY',
   },
 };

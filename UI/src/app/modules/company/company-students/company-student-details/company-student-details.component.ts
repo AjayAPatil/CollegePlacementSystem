@@ -20,6 +20,7 @@ export class CompanyStudentDetailsComponent implements OnInit {
   updatingDecision = false;
   interviewForm;
   minInterviewDate = new Date();
+  minJoiningDate = new Date();
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -31,11 +32,13 @@ export class CompanyStudentDetailsComponent implements OnInit {
   ) {
     this.interviewForm = this.formBuilder.group({
       interviewDate: this.formBuilder.control<Date | null>(null, Validators.required),
-      interviewTime: this.formBuilder.control<string>('09:00', Validators.required),
+      interviewTime: this.formBuilder.control<Date | null>(this.createTime, Validators.required),
       interviewMode: this.formBuilder.control<string>('Online'),
       interviewLocation: this.formBuilder.control<string>(''),
-      interviewNotes: this.formBuilder.control<string>('')
+      interviewNotes: this.formBuilder.control<string>(''),
+      joiningDate: this.formBuilder.control<Date | null>(null)
     });
+    this.minJoiningDate.setDate(this.minJoiningDate.getDate() + 1);
   }
 
   ngOnInit(): void {
@@ -61,7 +64,7 @@ export class CompanyStudentDetailsComponent implements OnInit {
     }
 
     const formValue = this.interviewForm.getRawValue();
-    const interviewScheduledAt = this.combineInterviewDateAndTime(formValue.interviewDate, formValue.interviewTime || '');
+    const interviewScheduledAt = this.combineInterviewDateAndTime(formValue.interviewDate, formValue.interviewTime || this.createTime);
     if (!interviewScheduledAt) {
       this.globalService.showErrorMessage('Please select a valid interview date and time.');
       return;
@@ -81,6 +84,8 @@ export class CompanyStudentDetailsComponent implements OnInit {
           this.applicationDetails = this.normalizeApplication(response.data);
           this.patchInterviewForm(this.applicationDetails);
           this.globalService.showSuccessMessage(response.message);
+
+          this.loadApplicationDetails();
           return;
         }
 
@@ -98,10 +103,18 @@ export class CompanyStudentDetailsComponent implements OnInit {
       return;
     }
 
+    const joiningDate = this.interviewForm.controls.joiningDate.value;
+    if (status === 'accepted' && !joiningDate) {
+      this.interviewForm.controls.joiningDate.markAsTouched();
+      this.globalService.showErrorMessage('Joining date is required to accept the student.');
+      return;
+    }
+
     this.updatingDecision = true;
     this.companyService.updateApplicationStatus(this.applicationId, {
       companyId: this.companyId,
-      status
+      status,
+      joiningDate: status === 'accepted' && joiningDate ? this.toDateOnlyIsoString(joiningDate) : undefined
     }).subscribe({
       next: (response) => {
         this.updatingDecision = false;
@@ -183,7 +196,8 @@ export class CompanyStudentDetailsComponent implements OnInit {
       interviewTime: this.toInterviewTime(application.interviewScheduledAt),
       interviewMode: application.interviewMode || 'Online',
       interviewLocation: application.interviewLocation || '',
-      interviewNotes: application.interviewNotes || ''
+      interviewNotes: application.interviewNotes || '',
+      joiningDate: this.toInterviewDate(application.joiningDate)
     });
   }
 
@@ -200,22 +214,27 @@ export class CompanyStudentDetailsComponent implements OnInit {
     return date;
   }
 
-  private toInterviewTime(value: Date | string | undefined): string {
+  private toInterviewTime(value: Date | string | undefined): Date | null {
+    console.log('Converting interview time:', value);
     if (!value) {
-      return '09:00';
+      return this.createTime;
     }
 
-    const date = new Date(value);
+    const date = new Date(value); // Treat input as UTC
     if (Number.isNaN(date.getTime())) {
-      return '09:00';
+      return this.createTime;
     }
 
-    const hours = `${date.getHours()}`.padStart(2, '0');
-    const minutes = `${date.getMinutes()}`.padStart(2, '0');
-    return `${hours}:${minutes}`;
+    return date;
+  }
+  private get createTime(): Date {
+    const d = new Date();
+    d.setHours(9, 0, 0, 0);
+    return d;
   }
 
-  private combineInterviewDateAndTime(dateValue: Date | string | null, timeValue: string): Date | null {
+
+  private combineInterviewDateAndTime(dateValue: Date | string | null, timeValue: any): Date | null {
     if (!dateValue || !timeValue) {
       return null;
     }
@@ -225,19 +244,29 @@ export class CompanyStudentDetailsComponent implements OnInit {
       return null;
     }
 
-    const [hoursText, minutesText] = timeValue.split(':');
-    const hours = Number(hoursText);
-    const minutes = Number(minutesText);
-    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
-      return null;
-    }
+    if (typeof (timeValue) == 'string' && !/^\d{2}:\d{2}$/.test(timeValue)) {
+      const [hoursText, minutesText] = timeValue.split(':');
+      const hours = Number(hoursText);
+      const minutes = Number(minutesText);
+      if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+        return null;
+      }
 
-    interviewDate.setHours(hours, minutes, 0, 0);
+      interviewDate.setHours(hours, minutes, 0, 0);
+    } else if (timeValue instanceof Date) {
+      interviewDate.setHours(timeValue.getHours(), timeValue.getMinutes(), timeValue.getSeconds(), timeValue.getMilliseconds());
+    } else {
+      const dateTime = timeValue.toDate();
+      if (Number.isNaN(dateTime.getTime())) {
+        return null;
+      }
+      interviewDate.setHours(dateTime.getHours(), dateTime.getMinutes(), dateTime.getSeconds(), dateTime.getMilliseconds());
+    }
     return interviewDate;
   }
 
   private normalizeApplication(item: any): CompanyJobApplicationDetail {
-    return {
+    var application: CompanyJobApplicationDetail = {
       applicationId: item?.applicationId ?? item?.ApplicationId ?? 0,
       jobId: item?.jobId ?? item?.JobId ?? 0,
       companyId: item?.companyId ?? item?.CompanyId ?? 0,
@@ -254,6 +283,7 @@ export class CompanyStudentDetailsComponent implements OnInit {
       interviewLocation: item?.interviewLocation ?? item?.InterviewLocation,
       interviewNotes: item?.interviewNotes ?? item?.InterviewNotes,
       decisionAt: item?.decisionAt ?? item?.DecisionAt,
+      joiningDate: item?.joiningDate ?? item?.JoiningDate,
       updatedAt: item?.updatedAt ?? item?.UpdatedAt,
       jobTitle: item?.jobTitle ?? item?.JobTitle ?? '',
       studentFirstName: item?.studentFirstName ?? item?.StudentFirstName ?? '',
@@ -270,5 +300,29 @@ export class CompanyStudentDetailsComponent implements OnInit {
       qualifications: item?.qualifications ?? item?.Qualifications,
       requiredSkills: item?.requiredSkills ?? item?.RequiredSkills
     };
+    application.appliedAt = application.appliedAt ? this.convertToIST(application.appliedAt) : application.appliedAt;
+    application.decisionAt = application.decisionAt ? this.convertToIST(application.decisionAt) : application.decisionAt;
+    application.interviewScheduledAt = application.interviewScheduledAt ? this.convertToIST(application.interviewScheduledAt) : application.interviewScheduledAt;
+
+    return application;
+  }
+  private toDateOnlyIsoString(value: Date | string): string {
+    const date = new Date(value);
+    return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}-${`${date.getDate()}`.padStart(2, '0')}`;
+  }
+  private convertToIST(isoDate: Date | string | null | undefined): string {
+    if (!isoDate) {
+      return '';
+    }
+    const utcDate = new Date(isoDate + "Z"); // Treat input as UTC
+    return utcDate.toLocaleString("en-IN", {
+      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true
+    });
   }
 }

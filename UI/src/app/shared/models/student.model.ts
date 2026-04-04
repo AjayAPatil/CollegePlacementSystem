@@ -30,3 +30,27 @@ export class StudentModel {
   user?: UserModel;
 
 }
+
+export interface StudentDashboardChartItem {
+  label: string;
+  value: number;
+}
+
+export interface StudentDashboardRecentApplication {
+  applicationId: number;
+  jobId: number;
+  company: string;
+  role: string;
+  status: string;
+  appliedAt: Date | string;
+}
+
+export interface StudentDashboardModel {
+  profileCompletionPercentage: number;
+  appliedJobsCount: number;
+  upcomingDrivesCount: number;
+  shortlistedCount: number;
+  recentApplications: StudentDashboardRecentApplication[];
+  applicationStatusChart: StudentDashboardChartItem[];
+  skillDemandChart: StudentDashboardChartItem[];
+}

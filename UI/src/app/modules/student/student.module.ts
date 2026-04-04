@@ -9,6 +9,7 @@ import { StudentProfileComponent } from './student-profile/student-profile.compo
 import { SharedModule } from '../../shared';
 import { StudentJobsComponent } from './student-jobs/student-jobs.component';
 import { StudentJobDetailsComponent } from './student-job-details/student-job-details.component';
+import { StudentApplicationsComponent } from './student-applications/student-applications.component';
 
 @NgModule({
   declarations: [
@@ -16,7 +17,8 @@ import { StudentJobDetailsComponent } from './student-job-details/student-job-de
     StudentDashboardComponent,
     StudentProfileComponent,
     StudentJobsComponent,
-    StudentJobDetailsComponent
+    StudentJobDetailsComponent,
+    StudentApplicationsComponent
   ],
   imports: [
     CommonModule,

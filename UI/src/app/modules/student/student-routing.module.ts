@@ -6,6 +6,7 @@ import { StudentProfileComponent } from './student-profile/student-profile.compo
 import { AuthGuard } from '../../core';
 import { StudentJobsComponent } from './student-jobs/student-jobs.component';
 import { StudentJobDetailsComponent } from './student-job-details/student-job-details.component';
+import { StudentApplicationsComponent } from './student-applications/student-applications.component';
 
 const routes: Routes = [
   {
@@ -33,6 +34,12 @@ const routes: Routes = [
       {
         path: 'jobs/:jobId',
         component: StudentJobDetailsComponent,
+        canActivate: [AuthGuard],
+        data: { roles: ['Student'] }
+      },
+      {
+        path: 'applications',
+        component: StudentApplicationsComponent,
         canActivate: [AuthGuard],
         data: { roles: ['Student'] }
       }

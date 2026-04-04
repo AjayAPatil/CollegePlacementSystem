@@ -25,4 +25,31 @@
         // Navigation
         public UserModel? User { get; set; }
     }
+
+    public class StudentDashboardModel
+    {
+        public int ProfileCompletionPercentage { get; set; }
+        public int AppliedJobsCount { get; set; }
+        public int UpcomingDrivesCount { get; set; }
+        public int ShortlistedCount { get; set; }
+        public List<StudentDashboardRecentApplicationModel> RecentApplications { get; set; } = [];
+        public List<StudentDashboardChartItemModel> ApplicationStatusChart { get; set; } = [];
+        public List<StudentDashboardChartItemModel> SkillDemandChart { get; set; } = [];
+    }
+
+    public class StudentDashboardRecentApplicationModel
+    {
+        public long ApplicationId { get; set; }
+        public long JobId { get; set; }
+        public string Company { get; set; } = string.Empty;
+        public string Role { get; set; } = string.Empty;
+        public string Status { get; set; } = string.Empty;
+        public DateTime AppliedAt { get; set; }
+    }
+
+    public class StudentDashboardChartItemModel
+    {
+        public string Label { get; set; } = string.Empty;
+        public int Value { get; set; }
+    }
 }

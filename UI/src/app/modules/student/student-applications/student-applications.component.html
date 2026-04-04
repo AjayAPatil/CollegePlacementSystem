@@ -1,0 +1,91 @@
+<mat-toolbar class="page-title-topbar">
+  <div>
+    <b>Applied Jobs and Interviews</b>
+    <div class="subcopy">Track every application, interview schedule, final decision, and joining date in one place.
+    </div>
+  </div>
+  <span class="page-title-topbar-spacer"></span>
+</mat-toolbar>
+
+<div class="page-container">
+  <section class="applications-page">
+
+    <section class="loading-state" *ngIf="loading">
+      <mat-card>
+        <mat-card-content>Loading your applications...</mat-card-content>
+      </mat-card>
+    </section>
+
+    <section class="empty-state" *ngIf="!loading && !applications.length">
+      <mat-card>
+        <mat-card-content>
+          <h2>No applications yet</h2>
+          <p>Start applying to jobs and your interview updates will appear here.</p>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <section class="application-grid" *ngIf="!loading && applications.length">
+      <mat-card class="application-card" *ngFor="let application of applications"  [ngClass]="'application-' + application.status">
+        <mat-card-content>
+          <div class="card-top">
+            <div>
+              <p class="company-name">{{ application.companyName }}</p>
+              <h2>{{ application.jobTitle }}</h2>
+              <p class="meta-line">
+                {{ application.companyLocation || 'Location not provided' }}
+                <span *ngIf="application.workMode"> | {{ application.workMode }}</span>
+              </p>
+            </div>
+
+            <span class="status-badge" [ngClass]="'status-' + application.status">
+              {{ getStatusLabel(application.status) }}
+            </span>
+          </div>
+
+          <div class="detail-grid">
+            <div>
+              <span class="label">Applied On</span>
+              <strong>{{ application.appliedAt | date:'dd/MM/yyyy hh:mm a' }}</strong>
+            </div>
+
+            <div>
+              <span class="label">Interview</span>
+              <strong>
+                {{ application.interviewScheduledAt ? (application.interviewScheduledAt | date:'dd/MM/yyyy hh:mm a') :
+                'Not scheduled' }}
+              </strong>
+            </div>
+
+            <div>
+              <span class="label">Result</span>
+              <strong>
+                {{
+                application.status === 'accepted'
+                ? 'Accepted'
+                : application.status === 'rejected'
+                ? 'Rejected'
+                : application.status === 'interview_scheduled'
+                ? 'Interview Scheduled'
+                : 'Awaiting update'
+                }}
+              </strong>
+            </div>
+
+            <div>
+              <span class="label">Joining Date</span>
+              <strong>{{ application.joiningDate ? (application.joiningDate | date:'dd/MM/yyyy') : 'Not assigned'
+                }}</strong>
+            </div>
+          </div>
+
+          <div class="notes-block" *ngIf="application.interviewLocation || application.interviewNotes">
+            <p *ngIf="application.interviewLocation"><strong>Interview location/link:</strong> {{
+              application.interviewLocation }}</p>
+            <p *ngIf="application.interviewNotes"><strong>Notes:</strong> {{ application.interviewNotes }}</p>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  </section>
+</div>

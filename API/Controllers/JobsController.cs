@@ -418,6 +418,11 @@ WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId", new
                     return Failure("Only accepted or rejected are allowed.");
                 }
 
+                if (normalizedStatus == "accepted" && !requestData.JoiningDate.HasValue)
+                {
+                    return Failure("Joining date is required when accepting a student.");
+                }
+
                 JobApplicationModel? application = await GetOwnedApplicationAsync(applicationId, requestData.CompanyId);
                 if (application == null)
                 {
@@ -438,6 +443,7 @@ WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId", new
 UPDATE JobApplications
 SET Status = @Status,
     DecisionAt = @DecisionAt,
+    JoiningDate = @JoiningDate,
     UpdatedAt = @UpdatedAt
 WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId", new
                 {
@@ -445,6 +451,7 @@ WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId", new
                     requestData.CompanyId,
                     Status = normalizedStatus,
                     DecisionAt = DateTime.UtcNow,
+                    JoiningDate = normalizedStatus == "accepted" ? requestData.JoiningDate?.Date : null,
                     UpdatedAt = DateTime.UtcNow
                 });
 
@@ -880,7 +887,14 @@ BEGIN
     ALTER TABLE JobApplications ADD DecisionAt DATETIME2 NULL;
 END";
 
+            const string joiningDateSql = @"
+IF COL_LENGTH('dbo.JobApplications', 'JoiningDate') IS NULL
+BEGIN
+    ALTER TABLE JobApplications ADD JoiningDate DATETIME2 NULL;
+END";
+
             await _sqlQueryHelper.ExecuteAsync(sql);
+            await _sqlQueryHelper.ExecuteAsync(joiningDateSql);
         }
 
     }

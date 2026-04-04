@@ -121,6 +121,7 @@ export interface CompanyJobApplicationListItem {
   interviewLocation?: string;
   interviewNotes?: string;
   decisionAt?: Date | string;
+  joiningDate?: Date | string;
   updatedAt?: Date | string;
   jobTitle: string;
 }
@@ -152,4 +153,12 @@ export interface ScheduleInterviewRequestModel {
 export interface JobApplicationStatusUpdateRequestModel {
   companyId: number;
   status: string;
+  joiningDate?: string;
+}
+
+export interface StudentJobApplicationListItem extends CompanyJobApplicationListItem {
+  companyName: string;
+  companyLogoUrl?: string;
+  companyLocation?: string;
+  workMode?: string;
 }

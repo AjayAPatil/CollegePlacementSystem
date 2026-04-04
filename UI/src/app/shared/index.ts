@@ -8,3 +8,4 @@ export * from './constants/user-status.constants';
 export * from './shared.module';
 export * from './models/response.model';
 export * from './constants/date-format.constants';
+export * from './common.functions';

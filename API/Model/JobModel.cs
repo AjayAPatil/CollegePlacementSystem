@@ -90,12 +90,22 @@ namespace API.Model
         public string? InterviewLocation { get; set; }
         public string? InterviewNotes { get; set; }
         public DateTime? DecisionAt { get; set; }
+        public DateTime? JoiningDate { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }
 
     public class CompanyJobApplicationListItemModel : JobApplicationModel
     {
         public string JobTitle { get; set; } = string.Empty;
+    }
+
+    public class StudentJobApplicationListItemModel : JobApplicationModel
+    {
+        public string JobTitle { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
+        public string? CompanyLogoUrl { get; set; }
+        public string? CompanyLocation { get; set; }
+        public string? WorkMode { get; set; }
     }
 
     public class CompanyJobApplicationDetailModel : CompanyJobApplicationListItemModel
@@ -136,5 +146,6 @@ namespace API.Model
     public class JobApplicationStatusUpdateModel : CompanyJobApplicationQueryModel
     {
         public string Status { get; set; } = string.Empty;
+        public DateTime? JoiningDate { get; set; }
     }
 }

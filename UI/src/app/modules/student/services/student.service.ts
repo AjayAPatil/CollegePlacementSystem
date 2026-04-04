@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { environment } from '../../../../environments';
-import { CompanyModel, JobApplyRequestModel, JobDetailModel, JobFeedItem, JobModel, PagedResult, ResponseModel, StudentModel, UserModel } from '../../../shared';
+import { CompanyModel, JobApplyRequestModel, JobDetailModel, JobFeedItem, JobModel, PagedResult, ResponseModel, StudentDashboardModel, StudentJobApplicationListItem, StudentModel, UserModel } from '../../../shared';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -31,6 +31,14 @@ export class StudentService {
 
   getStudentById(studentId: number): Observable<ResponseModel<StudentModel>> {
     return this.http.get<ResponseModel<StudentModel>>(`${this.apiUrl}/student/${studentId}`);
+  }
+
+  getDashboard(studentId: number): Observable<ResponseModel<StudentDashboardModel>> {
+    return this.http.get<ResponseModel<StudentDashboardModel>>(`${this.apiUrl}/student/dashboard/${studentId}`);
+  }
+
+  getApplications(studentId: number): Observable<ResponseModel<StudentJobApplicationListItem[]>> {
+    return this.http.get<ResponseModel<StudentJobApplicationListItem[]>>(`${this.apiUrl}/student/applications/${studentId}`);
   }
 
   getCompanies(): Observable<ResponseModel<CompanyModel[]>> {
