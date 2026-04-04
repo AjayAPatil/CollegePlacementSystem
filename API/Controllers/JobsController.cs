@@ -145,6 +145,7 @@ WHERE j.JobId = @JobId";
                     return Failure("Job not found.");
                 }
 
+
                 return Success("Job details retrieved successfully.", job);
             }
             catch (Exception ex)
@@ -439,20 +440,65 @@ WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId", new
                     return Failure("Final decision can only be made after the scheduled interview time.");
                 }
 
+                DateTime updatedAt = DateTime.UtcNow;
                 int rowsAffected = await _sqlQueryHelper.ExecuteAsync(@"
+DECLARE @ExistingStatus NVARCHAR(30);
+DECLARE @JobId BIGINT;
+
+SELECT TOP 1
+    @ExistingStatus = Status,
+    @JobId = JobId
+FROM JobApplications WITH (UPDLOCK, HOLDLOCK)
+WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId;
+
+IF @ExistingStatus IS NULL
+BEGIN
+    THROW 50000, 'Application not found.', 1;
+END
+
+IF @Status = 'accepted' AND LOWER(ISNULL(@ExistingStatus, '')) = 'accepted'
+BEGIN
+    THROW 50001, 'Student has already been accepted for this job.', 1;
+END
+
+BEGIN TRANSACTION;
+
+IF @Status = 'accepted' AND LOWER(ISNULL(@ExistingStatus, '')) <> 'accepted'
+BEGIN
+    UPDATE Jobs
+    SET Openings = Openings - 1,
+        UpdatedAt = @UpdatedAt
+    WHERE JobId = @JobId
+      AND Openings > 0;
+
+    IF @@ROWCOUNT = 0
+    BEGIN
+        ROLLBACK TRANSACTION;
+        THROW 50002, 'No job openings are available for this job.', 1;
+    END
+END
+
 UPDATE JobApplications
 SET Status = @Status,
     DecisionAt = @DecisionAt,
     JoiningDate = @JoiningDate,
     UpdatedAt = @UpdatedAt
-WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId", new
+WHERE ApplicationId = @ApplicationId AND CompanyId = @CompanyId;
+
+IF @@ROWCOUNT = 0
+BEGIN
+    ROLLBACK TRANSACTION;
+    THROW 50003, 'Failed to update application status.', 1;
+END
+
+COMMIT TRANSACTION;", new
                 {
                     ApplicationId = applicationId,
                     requestData.CompanyId,
                     Status = normalizedStatus,
-                    DecisionAt = DateTime.UtcNow,
+                    DecisionAt = updatedAt,
                     JoiningDate = normalizedStatus == "accepted" ? requestData.JoiningDate?.Date : null,
-                    UpdatedAt = DateTime.UtcNow
+                    UpdatedAt = updatedAt
                 });
 
                 if (rowsAffected == 0)

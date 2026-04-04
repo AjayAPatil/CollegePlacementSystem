@@ -7,11 +7,17 @@
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Email</mat-label>
         <input matInput type="text" formControlName="email">
+        <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+          Email is required
+        </mat-error>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Password</mat-label>
         <input matInput type="password" formControlName="passwordHash">
+        <mat-error *ngIf="loginForm.get('passwordHash')?.hasError('required')">
+          Password is required
+        </mat-error>
       </mat-form-field>
 
       <button matButton="filled" color="primary" class="full-width">
@@ -20,7 +26,7 @@
 
       <div class="links">
         <a routerLink="/auth/register">Register</a>
-        <a routerLink="/auth/forgot-password">Forgot Password</a>
+        <a routerLink="/auth/forgot-password" hidden>Forgot Password</a>
       </div>
 
     </form>

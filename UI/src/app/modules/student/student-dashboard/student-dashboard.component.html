@@ -22,12 +22,12 @@
     </div>
 
     <div class="charts-grid">
-        <mat-card>
+        <mat-card class="dashboard-chart-card">
             <h3>Application Status</h3>
-            <canvas baseChart [data]="pieChartData" [type]="'pie'"></canvas>
+            <canvas class="dashboard-chart" baseChart [data]="pieChartData" [type]="'pie'"></canvas>
         </mat-card>
 
-        <mat-card>
+        <mat-card class="dashboard-chart-card">
             <h3>In-Demand Skills</h3>
             <canvas baseChart [data]="barChartData" [type]="'bar'"></canvas>
         </mat-card>
