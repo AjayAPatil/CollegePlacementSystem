@@ -19,12 +19,21 @@
                     getControl(personalForm,'firstName')?.hasError('required')) {
                     <mat-error>First name is required</mat-error>
                     }
+                    @if (getControl(personalForm,'firstName')?.touched &&
+                    getControl(personalForm,'firstName')?.hasError('pattern')) {
+                    <mat-error>First name should contain only letters</mat-error>
+                    }
 
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Middle Name</mat-label>
                     <input matInput formControlName="middleName">
+
+                    @if (getControl(personalForm,'middleName')?.touched &&
+                    getControl(personalForm,'middleName')?.hasError('pattern')) {
+                    <mat-error>Middle name should contain only letters</mat-error>
+                    }
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
@@ -35,12 +44,16 @@
                     getControl(personalForm,'lastName')?.hasError('required')) {
                     <mat-error>Last name required</mat-error>
                     }
+                    @if (getControl(personalForm,'lastName')?.touched &&
+                    getControl(personalForm,'lastName')?.hasError('pattern')) {
+                    <mat-error>Last name should contain only letters</mat-error>
+                    }
 
                 </mat-form-field>
 
                 <mat-form-field appearance="outline">
                     <mat-label>Date of Birth</mat-label>
-                    <input matInput [matDatepicker]="picker1" placeholder="dd/mm/yyyy" formControlName="dob">
+                    <input matInput [max]="maxDob" [matDatepicker]="picker1" placeholder="dd/mm/yyyy" formControlName="dob">
                     <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
                     <mat-datepicker #picker1></mat-datepicker>
                 </mat-form-field>

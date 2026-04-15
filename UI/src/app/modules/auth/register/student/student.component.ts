@@ -15,6 +15,7 @@ import { GlobalService } from '../../../../core';
 export class StudentComponent implements OnInit {
 
   readonly defaultLoginPassword = 'Pass@123';
+  readonly textOnlyPattern = '^[A-Za-z ]+$';
   personalForm!: FormGroup;
   academicForm!: FormGroup;
   contactForm!: FormGroup;
@@ -26,6 +27,7 @@ export class StudentComponent implements OnInit {
   genderOptions = CommonConstants.GenderOptions;
   bloodGroupOptions = CommonConstants.BloodGroupOptions;
   years: number[] = [];
+  maxDob: Date = new Date(new Date().getFullYear() - 15, 11, 31); // Set maximum date to 15 years ago
 
   constructor(
     private fb: FormBuilder,
@@ -40,9 +42,9 @@ export class StudentComponent implements OnInit {
       this.years.push(i);
     }
     this.personalForm = this.fb.group({
-      firstName: ['', Validators.required],
-      middleName: [''],
-      lastName: ['', Validators.required],
+      firstName: ['', [Validators.required, Validators.pattern(this.textOnlyPattern)]],
+      middleName: ['', Validators.pattern(this.textOnlyPattern)],
+      lastName: ['', [Validators.required, Validators.pattern(this.textOnlyPattern)]],
       dob: ['', Validators.required],
       gender: ['', Validators.required],
       bloodGroup: ['', Validators.required]
